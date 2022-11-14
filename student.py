@@ -1,5 +1,4 @@
 import random
-import pickle
 
 class Student:
     def __init__(self, name, grades, grade_level, points=0):
