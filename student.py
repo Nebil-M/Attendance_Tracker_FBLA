@@ -28,8 +28,13 @@ class Students:
     def add_student(self, name, grades, grade_level, points=0):
         self.students.append(Student(name, grades, grade_level, points))
 
-    def remove_student(self, name):
-        self.students = [student for student in self.students if student.name != name]
+    def remove_student(self, remove_student):
+        self.students = [student for student in self.students if student != remove_student]
+
+    def get_student(self, name):
+        for student in self.students:
+            if name == student.name:
+                return student
 
     def reset_points(self):
         for student in self.students:
@@ -64,6 +69,9 @@ class Students:
     def save_data(self, file_name='students'):
         with open(f'project_data/students/{file_name}.pkl', 'wb') as data_output:
             pickle.dump(self.students, data_output, pickle.HIGHEST_PROTOCOL)
+
+    def end_quarter(self):
+        ...
 
     def generate_report(self):
         ...
