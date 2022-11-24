@@ -1,8 +1,9 @@
 import pickle
 import random
 
+
 class Student:
-    def __init__(self, name, grades, grade_level, points=0):
+    def __init__(self, name: str, grades: str, grade_level: int, points: int = 0):
         self.name = name
         self.grades = grades
         self.grade_level = grade_level
@@ -11,13 +12,18 @@ class Student:
     def add_point(self, n=1):
         self.points += n
 
-    def present(self):
-        ...
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f"Student({self.name}, {self.grades}, {self.grade_level}, {self.points})"
 
 
 class Students:
     def __init__(self):
         self.students = []
+        self.prizes = {'100$ gift card': 30, 'Pizza': 25, 'Edison Shirt': 15, 'Donut': 10, 'Candy': 8,
+                       'Edison sticker': 5, 'Pencil': 1}
 
     def add_student(self, name, grades, grade_level, points=0):
         self.students.append(Student(name, grades, grade_level, points))
@@ -25,22 +31,38 @@ class Students:
     def remove_student(self, name):
         self.students = [student for student in self.students if student.name != name]
 
-    def get_winners(self):
-        ...
+    def reset_points(self):
+        for student in self.students:
+            student.points = 0
 
-    def get_random_winner(self):
-        return random.choice(self.students)
+    def get_winner(self):
+        students_with_most_points = max(self.students, key=lambda student: student.points)
+        return students_with_most_points
+
+    def get_random_winners(self):
+        grade_9_students = [student for student in self.students if student.grade_level == 9 and student.points != 0]
+        grade_10_students = [student for student in self.students if student.grade_level == 10 and student.points != 0]
+        grade_11_students = [student for student in self.students if student.grade_level == 11 and student.points != 0]
+        grade_12_students = [student for student in self.students if student.grade_level == 12 and student.points != 0]
+
+        grade_9_winner = random.choice(grade_9_students) if grade_9_students else None
+        grade_10_winner = random.choice(grade_9_students) if grade_10_students else None
+        grade_11_winner = random.choice(grade_9_students) if grade_11_students else None
+        grade_12_winner = random.choice(grade_9_students) if grade_12_students else None
+
+        return grade_9_winner, grade_10_winner, grade_11_winner, grade_12_winner
 
     def get_prize(self, student):
-        ...
+        possible_prizes = {prize: self.prizes[prize] for prize in self.prizes if self.prizes[prize] <= student.points}
+        best_possible_prize = max(possible_prizes, key=possible_prizes.get)
+        return best_possible_prize
 
-    def load_data(self):
-        with open('project_data/students', 'rb') as data_input:
+    def load_data(self, file_name='students'):
+        with open(f'project_data/students/{file_name}.pkl', 'rb') as data_input:
             self.students = pickle.load(data_input)
 
-
-    def save_data(self):
-        with open('project_data/students', 'wb') as data_output:
+    def save_data(self, file_name='students'):
+        with open(f'project_data/students/{file_name}.pkl', 'wb') as data_output:
             pickle.dump(self.students, data_output, pickle.HIGHEST_PROTOCOL)
 
     def generate_report(self):
