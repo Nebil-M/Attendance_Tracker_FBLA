@@ -1,7 +1,7 @@
-Devolop the events files and classess
+make generate report and end quarter function
 
-test file saving
+make backup system
 
-make generate report function
+Rename from Students and MetaEvents to StudentManager and EventManager
 
-include backup
+DO kivy Now

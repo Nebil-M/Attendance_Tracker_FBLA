@@ -1,8 +1,8 @@
-from student import Students
-import pytest
+from student import *
+
 
 def test_winner():
-    students = Students()
+    students = StudentManager()
 
     students.add_student('s1', "A", 9, 1)
     students.add_student('s2', "A", 9, 4)
@@ -20,7 +20,7 @@ def test_winner():
 
 
 def test_general():
-    students = Students()
+    students = StudentManager()
 
     students.add_student('s1', "A", 9, 8)
     students.add_student('s2', "A", 9, 6)

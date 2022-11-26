@@ -11,17 +11,26 @@ class Event:
 
     def add_attendee(self, attendee):
         self.attendees.append(attendee)
+        attendee.add_points(1)
 
     def delete_attendee(self, remove_attendee):
         self.attendees = [attendee for attendee in self.attendees if attendee != remove_attendee]
+        remove_attendee.points -= 1 if remove_attendee.points > 0 else 0
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f"Event({self.name}, {self.date}, is_sport: {self.is_sport})"
 
 
-class MetaEvents:
+class EventManager:
     def __init__(self):
         self.events = []
+        self.load_data()
 
-    def add_event(self, name, date, nature, event_description):
-        self.events.append(Event(name, date, nature, event_description))
+    def add_event(self, name, date, event_description, is_sport):
+        self.events.append(Event(name, date, event_description, is_sport))
 
     def delete_event(self, remove_event):
         self.events = [event for event in self.events if event != remove_event]
