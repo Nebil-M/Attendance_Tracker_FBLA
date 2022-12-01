@@ -4,4 +4,4 @@ make backup system
 
 Rename from Students and MetaEvents to StudentManager and EventManager
 
-DO kivy Now
+figure out sticky
