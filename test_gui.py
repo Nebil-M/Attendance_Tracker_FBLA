@@ -22,8 +22,8 @@ class Calculator:
         Grid.rowconfigure(mainframe, 0, weight=1)
         Grid.rowconfigure(mainframe, 1, weight=5)
         Grid.columnconfigure(mainframe, 0, weight=1)
-        ##### Buttons
-        ## Numbers
+        # Buttons
+        # Numbers
         n = 1
         for row in range(1, 4):
             for column in range(3):
@@ -33,7 +33,7 @@ class Calculator:
                 Grid.rowconfigure(buttons_frame, row, weight=1)
                 Grid.columnconfigure(buttons_frame, column, weight=1)
                 n += 1
-        ## symbols
+        # symbols
         symbols = ["+", '-', "*", "/"]
 
         rows = len(symbols)
@@ -45,17 +45,17 @@ class Calculator:
             Grid.rowconfigure(buttons_frame, row, weight=1)
             Grid.columnconfigure(buttons_frame, 4, weight=1)
 
-        ## last row
+        # last row
         last_row_sy = ["**", "0", "."]
         for column in range(3):
             s = last_row_sy[column]
-            ttk.Button(buttons_frame, command=lambda s=s: self.add_to_box(s), text=s).grid(column=column, row=5,
-                                                                                           sticky="NSEW")
+            ttk.Button(buttons_frame, command=lambda sy=s: self.add_to_box(sy), text=s).grid(column=column, row=5,
+                                                                                             sticky="NSEW")
             Grid.rowconfigure(buttons_frame, 5, weight=1)
             Grid.columnconfigure(buttons_frame, column, weight=1)
 
-        ## equals func
-        equals = ttk.Button(buttons_frame, command=self.calculate, text='=').grid(column=4, row=5, sticky="NSEW")
+        # equals func
+        ttk.Button(buttons_frame, command=self.calculate, text='=').grid(column=4, row=5, sticky="NSEW")
 
         ##
         ttk.Button(buttons_frame, command=lambda: self.box.delete(0, END), text='Clear').grid(column=0, row=0,
@@ -69,7 +69,7 @@ class Calculator:
         for child in buttons_frame.winfo_children():
             child.grid(padx=2, pady=2)
 
-    def calculate(self, *args):
+    def calculate(self):
         ans = eval(self.box.get())
         self.box.delete(0, END)
         self.box.insert(0, ans)
