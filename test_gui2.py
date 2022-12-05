@@ -25,8 +25,11 @@ class FeetToMeters:
         ttk.Label(mainframe, text="is equivalent to").grid(column=1, row=2, sticky=E)
         ttk.Label(mainframe, text="meters").grid(column=3, row=2, sticky=W)
 
+
         for child in mainframe.winfo_children():
             child.grid_configure(padx=5, pady=5)
+            Grid.columnconfigure(mainframe, child.grid_info()['column'] , weight=1)
+            Grid.rowconfigure(mainframe, child.grid_info()['row'], weight=1)
 
         feet_entry.focus()
         root.bind("<Return>", self.calculate)
