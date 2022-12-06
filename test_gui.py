@@ -11,7 +11,7 @@ class Calculator:
         mainframe.grid(row=0, column=0, sticky="NSEW", pady=20, padx=20)
         Grid.rowconfigure(root, 0, weight=1)
         Grid.columnconfigure(root, 0, weight=1)
-        self.box = ttk.Entry(mainframe, text="Button 1", font=('arial', 30))
+        self.box = ttk.Entry(mainframe, font=('arial', 30))
         buttons_frame = ttk.Frame(mainframe)
 
         # Set grid
