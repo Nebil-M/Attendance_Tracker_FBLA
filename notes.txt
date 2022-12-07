@@ -2,6 +2,3 @@ make generate report and end quarter function
 
 make backup system
 
-Rename from Students and MetaEvents to StudentManager and EventManager
-
-figure out sticky
