@@ -80,7 +80,7 @@ class Calculator:
 
 if __name__ == '__main__':
     ct.set_appearance_mode("dark")  # Modes: system (default), light, dark
-    ct.set_default_color_theme("green")
+    ct.set_default_color_theme("dark-blue")
     root = ct.CTk()
     root.geometry("500x500")
     Calculator(root)

@@ -41,6 +41,7 @@ class StudentManager:
         for student in self.students:
             student.points = 0
 
+    # Student With top points
     def get_winner(self):
         students_with_most_points = max(self.students, key=lambda student: student.points)
         return students_with_most_points

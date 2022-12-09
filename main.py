@@ -1,6 +1,17 @@
 import customtkinter
 import customtkinter as ct
 
+
+class App(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
+        self.geometry("1000x600")
+        self.title("Main")
+        customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
+        customtkinter.set_default_color_theme("dark-blue")
+        NavigationFrame(self).grid(padx=0, pady=0, row=0, column=0)
+
+
 # For example Purposes
 class Login(ct.CTkFrame):
     def __init__(self, root):
@@ -28,22 +39,13 @@ class Login(ct.CTkFrame):
             main_frame.columnconfigure(child.grid_info()['column'], weight=1, minsize=500)
 
 
-class App(customtkinter.CTk):
-    def __init__(self):
-        super().__init__()
-        self.geometry("1000x600")
-        self.title("Main")
-        customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
-        customtkinter.set_default_color_theme("dark-blue")
-        NavigationFrame(self).grid(padx=0, pady=0, row=0, column=0)
-
-
 class NavigationFrame(customtkinter.CTkFrame):
     def __init__(self, root):
         super().__init__(root)
-        # set grid layout 1x2
+        # set grid layout
         root.grid_rowconfigure(0, weight=1)
-        root.grid_columnconfigure(1, weight=1)
+        root.grid_columnconfigure(0, weight=1)
+        root.grid_columnconfigure(1, weight=15)
 
         # create navigation frame
         self.navigation_frame = customtkinter.CTkFrame(root, corner_radius=0)
@@ -77,6 +79,10 @@ class NavigationFrame(customtkinter.CTkFrame):
                                                       anchor="w", command=self.frame_3_button_event)
         self.frame_3_button.grid(row=3, column=0, sticky="ew")
 
+        for child in self.navigation_frame.winfo_children():
+            # self.navigation_frame.rowconfigure(child.grid_info()['row'], weight=1)
+            self.navigation_frame.columnconfigure(child.grid_info()['column'], weight=1)
+
         # Appearance changer
         self.appearance_mode_menu = customtkinter.CTkOptionMenu(self.navigation_frame,
                                                                 values=["Dark", "Light", "System"],
@@ -84,10 +90,10 @@ class NavigationFrame(customtkinter.CTkFrame):
         self.appearance_mode_menu.grid(row=6, column=0, padx=20, pady=20, sticky="s")
 
         # create home frame
-        self.home_frame = Login(root)
+        self.home_frame = customtkinter.CTkFrame(root, corner_radius=0, fg_color="transparent")
 
         # create second frame
-        self.second_frame = customtkinter.CTkFrame(root, corner_radius=0, fg_color="transparent")
+        self.second_frame = Login(root)
 
         # create third frame
         self.third_frame = customtkinter.CTkFrame(root, corner_radius=0, fg_color="transparent")
