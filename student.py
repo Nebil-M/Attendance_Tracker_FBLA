@@ -3,9 +3,11 @@ import random
 
 
 class Student:
-    def __init__(self, name: str, grades: str, grade_level: int, points: int = 0):
-        self.name = name
-        self.grades = grades
+    def __init__(self, student_id: int, first_name: str, last_name: str, letter_grade: str, grade_level: int, points: int = 0):
+        self.student_id = student_id
+        self.first_name = first_name
+        self.last_name = last_name
+        self.letter_grade = letter_grade
         self.grade_level = grade_level
         self.points = points
 
@@ -13,10 +15,10 @@ class Student:
         self.points += n
 
     def __str__(self):
-        return self.name
+        return self.last_name, self.first_name
 
     def __repr__(self):
-        return f"Student({self.name}, {self.grades}, {self.grade_level}, {self.points})"
+        return f"Student({self.student_id}, {self.first_name}, {self.last_name}, {self.letter_grade}, {self.grade_level}, {self.points})"
 
 
 class StudentManager:
@@ -26,11 +28,12 @@ class StudentManager:
                        'Candy': 8, 'Edison sticker': 5, 'Pencil': 1}
         self.load_data()
 
-    def add_student(self, name, grades, grade_level, points=0):
-        self.students.append(Student(name, grades, grade_level, points))
+    def add_student(self, student_id, first_name, last_name, letter_grade, grade_level, points=0):
+        self.students.append(Student(student_id, first_name, last_name, letter_grade, grade_level, points))
 
-    def remove_student(self, remove_student):
-        self.students = [student for student in self.students if student != remove_student]
+    # the value passed in remove_student should be the student's name
+    def remove_student(self, name):
+        self.students = [student for student in self.students if student != name]
 
     def get_student(self, name):
         for student in self.students:
@@ -43,8 +46,8 @@ class StudentManager:
 
     # Student With top points
     def get_winner(self):
-        students_with_most_points = max(self.students, key=lambda student: student.points)
-        return students_with_most_points
+        student_with_most_points = max(self.students, key=lambda student: student.points)
+        return student_with_most_points
 
     def get_random_winners(self):
         grade_9_students = [student for student in self.students if student.grade_level == 9 and student.points != 0]
