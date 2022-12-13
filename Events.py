@@ -2,11 +2,12 @@ import pickle
 
 
 class Event:
-    def __init__(self, name: str, date: str, event_description: str, is_sport: bool):
+    def __init__(self, event_id: int, name: str, date: str, nature: str, event_description: str):
+        self.event_id = event_id
         self.name = name
         self.date = date
         self.event_description = event_description
-        self.is_sport = is_sport
+        self.nature = nature
         self.attendees = []
 
     def add_attendee(self, attendee):
@@ -21,7 +22,7 @@ class Event:
         return self.name
 
     def __repr__(self):
-        return f"Event({self.name}, {self.date}, is_sport: {self.is_sport})"
+        return f"Event({self.event_id}, {self.name}, {self.date}, nature: {self.nature})"
 
 
 class EventManager:
@@ -29,8 +30,8 @@ class EventManager:
         self.events = []
         self.load_data()
 
-    def add_event(self, name, date, event_description, is_sport):
-        self.events.append(Event(name, date, event_description, is_sport))
+    def add_event(self, event_id, name, date, nature, event_description):
+        self.events.append(Event(event_id, name, date, nature, event_description))
 
     def delete_event(self, remove_event):
         self.events = [event for event in self.events if event != remove_event]
@@ -41,11 +42,11 @@ class EventManager:
                 return event
 
     def get_sport_events(self):
-        sport_events = [event for event in self.events if event.is_sport]
+        sport_events = [event for event in self.events if event.nature == 'Sport']
         return sport_events
 
     def get_non_sport_events(self):
-        non_sport_events = [event for event in self.events if not event.is_sport]
+        non_sport_events = [event for event in self.events if not event.nature != 'Sport']
         return non_sport_events
 
     def load_data(self, file_name='events'):
