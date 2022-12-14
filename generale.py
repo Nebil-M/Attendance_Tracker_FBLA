@@ -8,6 +8,3 @@ ST = StudentManager()
 
 
 
-print(ME.events)
-
-

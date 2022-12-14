@@ -4,7 +4,6 @@ import customtkinter as ct
 from func_utils import weight_cells_1
 
 
-
 # Combining both frames
 class StudentsFrame(ct.CTkFrame):
     def __init__(self, root, *args, **kwargs):
