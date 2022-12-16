@@ -1,6 +1,6 @@
 import customtkinter
 import customtkinter as ct
-
+from gui_events import*
 
 class App(customtkinter.CTk):
     def __init__(self):
@@ -31,7 +31,7 @@ class Login(ct.CTkFrame):
         password.grid(row=2, column=0, sticky="NSEW", pady=12, padx=30)
         remember_me_box = ct.CTkCheckBox(main_frame, text='Remember me')
         remember_me_box.grid(row=3, column=0, sticky="NSEW", pady=12, padx=40)
-        btn_login = ct.CTkButton(main_frame, text='Login', compound="top")
+        btn_login = ct.CTkButton(main_frame, text='Login')
         btn_login.grid(row=4, column=0, sticky="NSEW", pady=12, padx=30)
 
         for child in main_frame.winfo_children():
@@ -90,10 +90,10 @@ class NavigationFrame(customtkinter.CTkFrame):
         self.appearance_mode_menu.grid(row=6, column=0, padx=20, pady=20, sticky="s")
 
         # create home frame
-        self.home_frame = customtkinter.CTkFrame(root, corner_radius=0, fg_color="transparent")
+        self.home_frame = Login(root)
 
         # create second frame
-        self.second_frame = Login(root)
+        self.second_frame = EventsFrame(root)
 
         # create third frame
         self.third_frame = customtkinter.CTkFrame(root, corner_radius=0, fg_color="transparent")
