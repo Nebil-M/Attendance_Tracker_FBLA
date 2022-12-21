@@ -219,29 +219,38 @@ class ViewTab(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.configure(fg_color="transparent")
-        self.id = ct.CTkEntry(self, placeholder_text=" Event ID", font=('arial', 20), height=40)
-        self.id_enter = ct.CTkButton(self, text=" Select", font=('arial', 20), height=40, anchor='center',
-                                     corner_radius=6)
+        self.event_name = ct.CTkLabel(self, text="Event Name", font=('arial', 30))
         # Student_list
         self.student_list = ct.CTkFrame(self, border_width=4, border_color='black', height=100)
+        # student tools
+        self.student_tools = ct.CTkFrame(self, fg_color='transparent')
+        self.student_select = ct.CTkComboBox(self.student_tools)
+        self.student_add = ct.CTkButton(self.student_tools, text='Add Student', font=('arial', 10))
+        self.delete_student = ct.CTkButton(self.student_tools, text='Delete Student', font=('arial', 10))
+
         self.description = ct.CTkTextbox(self, height=200, font=('arial', 20))
         # add_default text for description box
         self.description.insert('0.0', 'Description of the event')
 
         # griding
         pad = 10
-        self.id.grid(row=0, column=0, sticky='NSEW', padx=(pad + 90, pad + 10), pady=(pad + 40, pad + 10))
-        self.id_enter.grid(row=0, column=1, sticky='NSEW', padx=(pad + 10, pad + 90), pady=(pad + 40, pad + 10))
+        self.event_name.grid(row=0, column=0, sticky='NSEW', columnspan=2,
+                             padx=pad + 40, pady=(pad + 20, pad + 10))
+        self.student_list.grid(row=1, column=0, sticky='NSEW', padx=(pad, 0), pady=pad, rowspan=3)
 
-        self.student_list.grid(row=1, column=0, sticky='NSEW', padx=pad + 40, pady=pad, columnspan=2)
-        self.description.grid(row=2, column=0, sticky='NSEW', padx=pad + 40, pady=pad, columnspan=2)
+        self.student_tools.grid(row=1, column=1, sticky='NSEW', padx=0, pady=pad)
+        self.student_select.grid(row=0, column=0, sticky='NSEW', padx=pad, pady=0)
+        self.student_add.grid(row=1, column=0, sticky='NSEW', padx=pad, pady=pad)
+        self.delete_student.grid(row=2, column=0, sticky='NSEW', padx=pad, pady=0)
+
+        self.description.grid(row=4, column=0, sticky='NSEW', padx=pad, pady=pad, columnspan=2)
 
         # applying a weight of 1 to all cells
         weight_cells_1(self)
 
         # Manually editing layout
-        self.rowconfigure(1, weight=3)
-        self.rowconfigure(2, weight=7)
+        #self.rowconfigure(1, weight=3)
+        self.rowconfigure(4, weight=7)
 
 
 if __name__ == "__main__":
