@@ -1,6 +1,17 @@
 # This file has the GUI for the students but without classes, without object oriented programming.
 from tkinter import ttk
 import customtkinter as ct
+from student import StudentManager
+
+
+class StudentsFrame(ct.CTkFrame):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        table = StudentsTable(self)
+        sm = StudentManager()
+        table.load_students(sm.students)
+        # table.grid(row=0, column=0)
 
 
 class StudentsTable(ct.CTkFrame):
@@ -20,30 +31,54 @@ class StudentsTable(ct.CTkFrame):
         # into the tree view.
         # however, i wanted the treeview to re-arrange the columns in a more logical fashion,
         # so the order for display columns is different from columns.
-        self.students = ttk.Treeview(root, columns=columns,
-                                     displaycolumns=("Student ID", "Grade Level", "First name", "Last name", "Letter grade"),
-                                     show="headings")  # btw show="headings" essentially hides the first "#0" column
+        self.tree = ttk.Treeview(root, selectmode="browse", columns=columns, displaycolumns=(
+            "Student ID", "Grade Level", "First name", "Last name", "Letter grade"),
+                                 show="headings")  # btw show="headings" essentially hides the first "#0" column
 
         for column in columns:
-            self.students.heading(column, text=column)
-            self.students.column(column, width=200, anchor='w', minwidth=200)
-        self.students.insert("", "end", text="student1", values=[1234, "Bob", "Ross", "A", 9], tags="student")
-        self.students.insert("", "end", text="student2", values=[5678, "Sarah", "Smith", "A+", 9], tags="student")
+            self.tree.heading(column, text=column)
+            self.tree.column(column, width=200, anchor='w', minwidth=200)
 
-        self.students.tag_configure("student", background='yellow')
-        self.students.tag_bind("student", "<Double-1>", self.on_selection)
-        self.students.grid(row=0, column=0)
+        # These two lines below are used for testing
+        # self.tree.insert("", "end", text="student1", values=[1234, "Bob", "Ross", "A", 9], tags="student")
+        # self.tree.insert("", "end", text="student2", values=[5678, "Sarah", "Smith", "A+", 9], tags="student")
+        self.tree.tag_bind("student", "<Double-1>", self.on_selection)
+
+        self.tree.grid(row=0, column=0)
+
+    def add_student(self, student):
+        values = (student.student_id, student.first_name, student.last_name, student.letter_grade, student.grade_level)
+        student_id = str(student.student_id)
+        self.tree.insert("", 'end', student_id, text=student_id, values=values)
+
+    def load_students(self, students):
+        for student in students:
+            values = (
+                student.student_id, student.first_name, student.last_name, student.letter_grade, student.grade_level)
+            student_id = str(student.student_id)
+            self.tree.insert("", 'end', student_id, text=student_id, values=values, tags=("ttk", "student"))
+        self.tree.tag_configure("ttk", font=('Helvetica', 20, 'bold'), foreground='gray74', background='#343638')
+        # self.tree.tag_configure("student", background='yellow')
+        self.tree.tag_bind("student", "<Double-1>", self.on_selection)
+
+
 
     # Changes the label in the edit tab when a student is selected on the treeview
     def on_selection(self, event):
-        selection = students_table.students.selection()
+        # the selection isn't working and i don't know why
+        # the selection is apparently empty, but it shouldn't be.
+        print("on_selection ran")
+        selection = students_table.tree.selection()
         # Checks if selection is empty or not
+        print(selection, "is selection")
+        print(students_table.tree.focus(),"is students_table.tree.focus()")
         if selection:
             # This variable stores the values of the selection
             # note: need to test if, with multiple students, what happens when multiple students are selected.
-            text = students_table.students.item(selection[0])['values']
+            text = students_table.tree.item(selection[0])['values']
             # print(text, text[1], text[2], type(text))
 
+            tabs.tabview.set("Edit")
             # The following lines fill out the Entry or Label widgets with the appropriate value from the Treeview's items
             # These use lowercase tabs because it's referring to the instance of the object (which is created at the bottom, after the class. this is bad practice(probably), i know).
             # if changed to Tabs, it throws an error about attributes (global? i thought self.attribute would be global but i guess not *shrugs*)
@@ -88,15 +123,15 @@ class Tabs(ct.CTkFrame):
         grade_level = ct.CTkEntry(self.tab_add_students, placeholder_text="Grade level", width=160)
         grade_level.grid(row=2, column=0, sticky="W")
 
-        letter_grade = ct.CTkOptionMenu(self.tab_add_students, values=self.letter_grade_options, width=160)
-        letter_grade.grid(row=3, column=0, sticky="W")
-        letter_grade.set("Select a letter grade")
-
         first_name = ct.CTkEntry(self.tab_add_students, placeholder_text="First name", width=160)
-        first_name.grid(row=4, column=0, sticky="W")
+        first_name.grid(row=3, column=0, sticky="W")
 
         last_name = ct.CTkEntry(self.tab_add_students, placeholder_text="Last name", width=160)
-        last_name.grid(row=5, column=0, sticky="W")
+        last_name.grid(row=4, column=0, sticky="W")
+
+        letter_grade = ct.CTkOptionMenu(self.tab_add_students, values=self.letter_grade_options, width=160)
+        letter_grade.grid(row=5, column=0, sticky="W")
+        letter_grade.set("Select a letter grade")
 
         save = ct.CTkButton(self.tab_add_students, text="Save", width=80)
         save.grid(row=6, column=0, sticky="SE", pady=50)
@@ -126,33 +161,30 @@ class Tabs(ct.CTkFrame):
                                        placeholder_text="Grade level", width=160)
         self.grade_level.grid(row=7, column=0, sticky="W")
 
-
-        ct.CTkLabel(self.tab_edit_students, text="Letter grade").grid(row=8, column=0, sticky="W")
-
-        self.letter_grade_value = ct.StringVar()
-        self.letter_grade = ct.CTkOptionMenu(self.tab_edit_students, variable=self.letter_grade_value,
-                                             values=self.letter_grade_options, width=160)
-        self.letter_grade.grid(row=9, column=0, sticky="W")
-        self.letter_grade.set("Select a letter grade")
-
-        ct.CTkLabel(self.tab_edit_students, text="First name").grid(row=10, column=0, sticky="W")
+        ct.CTkLabel(self.tab_edit_students, text="First name").grid(row=8, column=0, sticky="W")
 
         self.first_name_value = ct.StringVar()
         self.first_name = ct.CTkEntry(self.tab_edit_students, textvariable=self.first_name_value,
                                       placeholder_text="First name", width=160)
-        self.first_name.grid(row=11, column=0, sticky="W")
+        self.first_name.grid(row=9, column=0, sticky="W")
 
-        ct.CTkLabel(self.tab_edit_students, text="Last name").grid(row=12, column=0, sticky="W")
+        ct.CTkLabel(self.tab_edit_students, text="Last name").grid(row=10, column=0, sticky="W")
 
         self.last_name_value = ct.StringVar(value=None)
         self.last_name = ct.CTkEntry(self.tab_edit_students, textvariable=self.last_name_value,
                                      placeholder_text="Last name", width=160)
-        self.last_name.grid(row=13, column=0, sticky="W")
+        self.last_name.grid(row=11, column=0, sticky="W")
+
+        ct.CTkLabel(self.tab_edit_students, text="Letter grade").grid(row=12, column=0, sticky="W")
+
+        self.letter_grade_value = ct.StringVar()
+        self.letter_grade = ct.CTkOptionMenu(self.tab_edit_students, variable=self.letter_grade_value,
+                                             values=self.letter_grade_options, width=160)
+        self.letter_grade.grid(row=13, column=0, sticky="W")
+        self.letter_grade.set("Select a letter grade")
 
         save = ct.CTkButton(self.tab_edit_students, text="Save", width=80)
         save.grid(row=14, column=0, sticky="SE", pady=50)
-
-
 
 
 if __name__ == "__main__":
@@ -163,8 +195,10 @@ if __name__ == "__main__":
     ct.set_appearance_mode("dark")
     ct.set_default_color_theme("dark-blue")
 
+    # don't change the variable name tabs or else i'll cut your toes off. jk, just make sure you refactor all usages...
     tabs = Tabs(root)
     students_table = StudentsTable(root)
+    StudentsFrame(root).grid(row=0, column=0)
 
     root.rowconfigure(0, weight=1)
     root.columnconfigure(0, weight=3)
