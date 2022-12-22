@@ -1,8 +1,31 @@
 import tkinter as tk
 from tkinter import ttk
 import customtkinter as ct
-from func_utils import weight_cells_1
+from func_utils import *
 from Events import EventManager
+
+
+class Event_Controller:
+    def __init__(self, view):
+        # defining variables
+        self.view = view
+        self.model = EventManager()
+
+        self.events_table = self.view.date_table
+
+        # Functions run Initially
+        self.update_events()
+        self.tree_bind()
+
+    #updates the treeview each time events are changed
+    def update_events(self):
+        self.events_table.load_events(self.model.events)
+
+
+    # do all bindings to the table
+    def tree_bind(self):
+        #self.events_table.tree.bind('<Double-1>', lambda e: print(23))
+        pass
 
 
 # Combining both frames
@@ -11,18 +34,23 @@ class EventsFrame(ct.CTkFrame):
         super().__init__(*args, **kwargs)
         self.configure(fg_color="transparent")
 
-        table = EventsTable(self)
-        em = EventManager()
-        table.load_events(em.events)
-        table.grid(row=0, column=0, sticky='NSEW', padx=10, pady=30)
-
-        EventTools(self).grid(row=0, column=1, sticky='NSEW', padx=10, pady=30)
-
+        # Making the layout
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=10)
         self.columnconfigure(1, weight=1)
 
+        # Making Data Table and loading data
+        self.date_table = EventsTable(self)
+        self.date_table.grid(row=0, column=0, sticky='NSEW', padx=10, pady=30)
+        # em = EventManager()
+        # self.date_table.load_events(em.events)
 
+        # The various tabs
+        self.event_tabs = EventTools(self)
+        self.event_tabs.grid(row=0, column=1, sticky='NSEW', padx=10, pady=30)
+
+
+# DataTable displaying events
 class EventsTable(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -76,7 +104,7 @@ class EventsTable(ct.CTkFrame):
         for event in events:
             values = (event.name, event.date, event.nature, event.event_description)
             event_id = str(event.event_id)
-            self.tree.insert("", 'end', event_id, text=event_id, values=values, tags=('ttk', 'simple'))
+            self.tree.insert("", 'end', event_id, text=event_id, values=values, tags=('ttk', 'simple', 'events'))
             self.tree.tag_configure('ttk', font=('Helvetica', 20, 'bold'), foreground='gray74', background='#343638')
 
 
@@ -163,10 +191,10 @@ class AddTab(ct.CTkFrame):
         self.name = ct.CTkEntry(self, placeholder_text='Event Name', font=('arial', font))
         self.date = ct.CTkEntry(self, placeholder_text='Date', font=('arial', font))
         self.id = ct.CTkEntry(self, placeholder_text='ID', font=('arial', font))
-        self.nature = ct.CTkEntry(self, placeholder_text='nature', font=('arial', font))
+        self.nature = ct.CTkEntry(self, placeholder_text='Nature', font=('arial', font))
         self.description = ct.CTkTextbox(self, height=100, font=('arial', font))
-        self.add = ct.CTkButton(self, text="Add", font=('arial', font))
-        self.delete = ct.CTkButton(self, text="Delete", font=('arial', font))
+        self.add = ct.CTkButton(self, text="Add Event", font=('arial', font))
+        self.delete = ct.CTkButton(self, text="Delete Event", font=('arial', font))
 
         # add_default text for description box
         self.description.insert('0.0', 'Description of the event')
@@ -179,8 +207,11 @@ class AddTab(ct.CTkFrame):
         self.description.grid(row=2, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
         self.add.grid(row=3, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
         self.delete.grid(row=4, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
+
         # applying a weight of 1 to all cells
-        weight_cells_1(self)
+        limited_weight_cells(self)
+        # fix  all entry placeholders
+        place_holder_bind_all(self)
 
 
 class EditTab(ct.CTkFrame):
@@ -192,9 +223,9 @@ class EditTab(ct.CTkFrame):
         self.name = ct.CTkEntry(self, placeholder_text='Event Name', font=('arial', font))
         self.date = ct.CTkEntry(self, placeholder_text='Date', font=('arial', font))
         self.id = ct.CTkEntry(self, placeholder_text='ID', font=('arial', font))
-        self.nature = ct.CTkEntry(self, placeholder_text='nature', font=('arial', font))
+        self.nature = ct.CTkEntry(self, placeholder_text='Nature', font=('arial', font))
         self.description = ct.CTkTextbox(self, height=100, font=('arial', font))
-        self.edit_button = ct.CTkButton(self, text="Edit", font=('arial', font), anchor='center')
+        self.edit_button = ct.CTkButton(self, text="Edit Event", font=('arial', font), anchor='center')
 
         # add_default text for description box
         self.description.insert('0.0', 'Description of the event')
@@ -208,11 +239,13 @@ class EditTab(ct.CTkFrame):
         self.description.grid(row=2, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
         self.edit_button.grid(row=3, sticky='NEWS', padx=pad + 40, pady=pad, columnspan=2)
         # applying a weight of 1 to all cells
-        weight_cells_1(self)
+        limited_weight_cells(self)
 
         # Evening out the different tab alignment
         self.rowconfigure(4, weight=1)
         self.rowconfigure(5, weight=1)
+        # placeholder fix
+        place_holder_bind_all(self)
 
 
 class ViewTab(ct.CTkFrame):
@@ -221,12 +254,16 @@ class ViewTab(ct.CTkFrame):
         self.configure(fg_color="transparent")
         self.event_name = ct.CTkLabel(self, text="Event Name", font=('arial', 30))
         # Student_list
-        self.student_list = ct.CTkFrame(self, border_width=4, border_color='black', height=100)
+        self.student_list = tk.Listbox(self, height=3, borderwidth=10,
+                                       width=15, background="#343638", activestyle='dotbox',
+                                       font=("Helvetica", 22, "bold"), foreground="gray"
+                                       )
         # student tools
         self.student_tools = ct.CTkFrame(self, fg_color='transparent')
         self.student_select = ct.CTkComboBox(self.student_tools)
-        self.student_add = ct.CTkButton(self.student_tools, text='Add Student', font=('arial', 10))
-        self.delete_student = ct.CTkButton(self.student_tools, text='Delete Student', font=('arial', 10))
+        self.student_add = ct.CTkButton(self.student_tools, text='Add Student', font=('arial', 20), anchor='center')
+        self.delete_student = ct.CTkButton(self.student_tools, text='Delete Student', font=('arial', 20),
+                                           anchor='center')
 
         self.description = ct.CTkTextbox(self, height=200, font=('arial', 20))
         # add_default text for description box
@@ -246,11 +283,13 @@ class ViewTab(ct.CTkFrame):
         self.description.grid(row=4, column=0, sticky='NSEW', padx=pad, pady=pad, columnspan=2)
 
         # applying a weight of 1 to all cells
-        weight_cells_1(self)
+        limited_weight_cells(self)
 
         # Manually editing layout
-        #self.rowconfigure(1, weight=3)
         self.rowconfigure(4, weight=7)
+
+        # placeholder fix
+        place_holder_bind_all(self)
 
 
 if __name__ == "__main__":
@@ -260,12 +299,15 @@ if __name__ == "__main__":
     ct.set_appearance_mode("dark")  # Modes: system (default), light, dark
     ct.set_default_color_theme("dark-blue")
 
-    EventsFrame(window).grid(row=0, column=0, sticky='NSEW')
+    E = EventsFrame(window)
+    E.grid(row=0, column=0, sticky='NSEW')
     # EventTools(window).grid(row=0, column=0, sticky='NSEW')
     # EventsTable(window).grid(row=0, column=0, sticky='NSEW')
 
-    # ViewTab(window).grid(row=0, column=0, sticky='NSEW')
+    # AddTab(window).grid(row=0, column=0, sticky='NSEW')
 
+    # Running controller
+    controller = Event_Controller(E)
     # Making the widgets resizable
     window.rowconfigure(0, weight=1)
     window.columnconfigure(0, weight=1)
