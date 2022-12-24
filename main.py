@@ -3,6 +3,7 @@ import customtkinter as ct
 from gui_events import *
 from gui_students import *
 
+
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
@@ -52,7 +53,6 @@ class NavigationFrameTop(customtkinter.CTkFrame):
         self.grid_rowconfigure(1, weight=15)
         self.grid_columnconfigure(0, weight=1)
 
-
         # create navigation frame
         self.navigation_frame = customtkinter.CTkFrame(self, corner_radius=0)
         self.navigation_frame.grid(row=0, column=0, sticky="new")
@@ -87,7 +87,7 @@ class NavigationFrameTop(customtkinter.CTkFrame):
 
         for child in self.navigation_frame.winfo_children():
             self.navigation_frame.rowconfigure(child.grid_info()['row'], weight=1)
-            #self.navigation_frame.columnconfigure(child.grid_info()['column'], weight=1)
+            # self.navigation_frame.columnconfigure(child.grid_info()['column'], weight=1)
 
         # Appearance changer
         self.appearance_mode_menu = customtkinter.CTkOptionMenu(self.navigation_frame,
@@ -150,8 +150,6 @@ class NavigationFrame(customtkinter.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=15)
 
-
-
         # create navigation frame
         self.navigation_frame = customtkinter.CTkFrame(self, corner_radius=0)
         self.navigation_frame.grid(row=0, column=0, sticky="nws")
@@ -185,7 +183,7 @@ class NavigationFrame(customtkinter.CTkFrame):
         self.frame_3_button.grid(row=3, column=0, sticky="ew")
 
         for child in self.navigation_frame.winfo_children():
-            #self.navigation_frame.rowconfigure(child.grid_info()['row'], weight=1)
+            # self.navigation_frame.rowconfigure(child.grid_info()['row'], weight=1)
             self.navigation_frame.columnconfigure(child.grid_info()['column'], weight=1)
 
         # Appearance changer
@@ -202,6 +200,7 @@ class NavigationFrame(customtkinter.CTkFrame):
 
         # create third frame
         self.third_frame = EventsFrame(self)
+        EC = EventController(self.third_frame)
 
         # select default frame
         self.select_frame_by_name("home")

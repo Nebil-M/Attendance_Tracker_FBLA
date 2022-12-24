@@ -31,15 +31,30 @@ class EventManager:
         self.load_data()
 
     def add_event(self, event_id, name, date, nature, event_description):
-        self.events.append(Event(event_id, name, date, nature, event_description))
+        ids = [event.event_id for event in self.events]
+        invalid_ids = ['']
+        if event_id in ids:
+            raise Exception("ID already exists")
+        elif event_id in invalid_ids:
+            raise Exception('Invalid ID.')
+        else:
+            self.events.append(Event(event_id, name, date, nature, event_description))
 
-    def delete_event(self, remove_event):
-        self.events = [event for event in self.events if event != remove_event]
+    def delete_event(self, remove_event_id):
+        event = self.get_event(remove_event_id)
+        self.events.remove(event)
 
-    def get_event(self, name):
+    def get_event(self, id):
+        match = None
         for event in self.events:
-            if name == event.name:
-                return event
+            # Enforce ints when doing validation
+            if id == str(event.event_id):
+                match = event
+
+        if match:
+            return match
+        else:
+            raise Exception('Event not found.')
 
     def get_sport_events(self):
         sport_events = [event for event in self.events if event.nature == 'Sport']
