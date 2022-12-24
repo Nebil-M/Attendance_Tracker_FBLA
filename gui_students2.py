@@ -10,7 +10,8 @@ class StudentsFrame(ct.CTkFrame):
 
         self.table = StudentsTable(self)
         self.table.grid(row=0, column=0, sticky='NEWS', padx=10, pady=30)
-
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
         sm = StudentManager()
         self.table.load_students(sm.students)
 
@@ -209,7 +210,7 @@ if __name__ == "__main__":
     tabs = Tabs(root)
 
     # students_table = StudentsTable(root)
-    StudentsFrame(root).grid(row=0, column=0)
+    StudentsFrame(root).grid(row=0, column=0, sticky='NEWS')
 
     root.rowconfigure(0, weight=1)
     root.columnconfigure(0, weight=1)
