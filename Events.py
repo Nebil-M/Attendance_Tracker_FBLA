@@ -71,3 +71,5 @@ class EventManager:
     def save_data(self, file_name='events'):
         with open(f'project_data/events/{file_name}.pkl', 'wb') as data_output:
             pickle.dump(self.events, data_output, pickle.HIGHEST_PROTOCOL)
+
+event_manager = EventManager()
