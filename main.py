@@ -103,6 +103,7 @@ class NavigationFrameTop(customtkinter.CTkFrame):
 
         # create third frame
         self.third_frame = EventsFrame(self)
+        EC = EventController(self.third_frame)
 
         # select default frame
         self.select_frame_by_name("home")

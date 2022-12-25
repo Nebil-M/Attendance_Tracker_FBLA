@@ -3,12 +3,16 @@ from tkinter import ttk
 import customtkinter as ct
 from func_utils import *
 from Events import EventManager
+from student import StudentManager
+
 
 # Using EventController in order to separate logic from the view. Easier to scale up and debug this way. Later on,
 # we might just make one controller for both Events and Students or make a MetaController that is a parent of both
 class EventController:
-    def __init__(self, view):
-        # view = EventsFrame()
+    def __init__(self, view, student_controller=None):
+        # view = EventsFrame() getting student_controller, we need to make a way for event controller to access the
+        # student manager that is created in gui_students. for now I will create my own for testing
+        self.student_controller = StudentManager()
         # defining the view and model. view is EventFrame passed into Controller later on.
         # Model is the EventManger
         self.view = view
@@ -20,14 +24,15 @@ class EventController:
         # Functions run Initially
         self.update_events_table()
         self.widget_bindings()
-
-        add_tab = self.event_tabs.add_tab
+        values = [f'{s.first_name} {s.last_name}, {s.student_id}' for s in self.student_controller.students]
+        self.event_tabs.view_tab.student_select.configure(values=values)
+        self.event_tabs.view_tab.student_select.var.set(value=values[0])
 
     # adds to model, deletes and repopulates items in view using update_events_table
     def add_event(self, event=None):
         add_tab = self.event_tabs.add_tab
         self.model.add_event(add_tab.id.var.get(), add_tab.name.var.get(), add_tab.date.var.get(),
-                             add_tab.name.var.get(),
+                             add_tab.nature.var.get(),
                              add_tab.description.get('0.0', 'end'))
         self.update_events_table()
 
@@ -44,18 +49,21 @@ class EventController:
     def edit_event(self, event=None):
         selected_item = self.events_table.tree.focus()
         edit_tab = self.event_tabs.edit_tab
-        event = self.model.get_event(selected_item)
+        if selected_item:
+            event = self.model.get_event(selected_item)
 
-        other_events = [e for e in self.model.events if e != event]
-        if edit_tab.id.var.get() in [str(event.event_id) for event in other_events]:
-            raise Exception("This ID is already taken by another Event.")
+            other_events = [e for e in self.model.events if e != event]
+            if edit_tab.id.var.get() in [str(event.event_id) for event in other_events]:
+                raise Exception("This ID is already taken by another Event.")
+            else:
+                event.event_id = edit_tab.id.var.get()
+                event.name = edit_tab.name.var.get()
+                event.date = edit_tab.date.var.get()
+                event.nature = edit_tab.nature.var.get()
+                event.event_description = edit_tab.description.get('0.0', 'end')
+            self.update_events_table()
         else:
-            event.event_id = edit_tab.id.var.get()
-            event.name = edit_tab.name.var.get()
-            event.date = edit_tab.date.var.get()
-            event.nature = edit_tab.nature.var.get()
-            event.event_description = edit_tab.description.get('0.0', 'end')
-        self.update_events_table()
+            raise Exception("Item not selected")
 
     # callback to when a row is double clicked, populates the edit tab entries.
     def edit_select_fill(self, event=None):
@@ -71,20 +79,61 @@ class EventController:
             edit_tab.description.delete('0.0', 'end')
             edit_tab.description.insert('end', event.event_description)
 
+    def view_select(self, event=None):
+        selected_item = self.events_table.tree.focus()
+        view_tab = self.event_tabs.view_tab
+        event = self.model.get_event(selected_item)
+        if event:
+            if view_tab == self.event_tabs.winfo_children()[-1]:
+                view_tab.event_name.var.set(event.name)
+                view_tab.description.delete("0.0", 'end')
+                view_tab.description.insert('end', event.event_description)
+                view_tab.student_list.var.set(event.attendees)
+        else:
+            raise Exception('No event Selected')
+
+    def add_student_view(self, event=None):
+        selected_item = self.events_table.tree.focus()
+        id = self.event_tabs.view_tab.student_select.var.get().split()[2]
+        student = self.student_controller.get_student(int(id))
+        event = self.model.get_event(selected_item)
+        if event:
+            if student not in event.attendees:
+                event.add_attendee(student)
+                self.update_view_tab()
+            else:
+                raise Exception("Student already attended event")
+        else:
+            raise Exception("No Event Selected")
+
+    def delete_student_view(self, event=None):
+        indexs = self.event_tabs.view_tab.student_list.curselection()
+        event = self.model.get_event(self.events_table.tree.focus())
+        attendees = event.attendees
+        for idx in indexs:
+            event.delete_attendee(attendees[idx])
+        self.update_view_tab()
+
     # updates the treeview each time it is called. Call it anytime the model is changed.
     # It deletes all items from treeview and repopulates them
     def update_events_table(self):
         self.events_table.tree.delete(*self.events_table.tree.get_children())
         self.events_table.load_events(self.model.events)
 
-    # All bindings to widgets are done here
+    def update_view_tab(self):
+        self.view_select()
+
+    # All bindings and command configs to widgets are done here
     def widget_bindings(self):
         self.events_table.tree.bind('<Double-1>', self.edit_select_fill)
-
+        self.events_table.tree.bind('<ButtonRelease-1>', self.view_select)
         self.event_tabs.add_tab.add.configure(command=self.add_event)
         self.event_tabs.add_tab.delete.configure(command=self.delete_event)
 
         self.event_tabs.edit_tab.edit_button.configure(command=self.edit_event)
+
+        self.event_tabs.view_tab.student_add.configure(command=self.add_student_view)
+        self.event_tabs.view_tab.delete_student.configure(command=self.delete_student_view)
 
 
 # Combining both frames
@@ -126,29 +175,23 @@ class EventsTable(ct.CTkFrame):
 
         # Initializing treeview, and scroller
         self.tree = ttk.Treeview(self)
-        self.scroll_y = ct.CTkScrollbar(self, orientation="vertical", command=self.tree.yview,
-                                        button_color=("gray55", "gray41"),
-                                        button_hover_color=(
-                                            "gray40", "gray53"))  # Must specify colors because of ct bug
-        self.tree.configure(yscroll=self.scroll_y.set)
+        self.scroll_y = ct.CTkScrollbar(self, orientation="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=self.scroll_y.set)
 
-        self.scroll_x = ct.CTkScrollbar(self, orientation="horizontal", command=self.tree.xview,
-                                        button_color=("gray55", "gray41"),
-                                        button_hover_color=(
-                                            "gray40", "gray53"))  # Must specify colors because of ct bug
-        self.tree.configure(xscroll=self.scroll_x.set)
+        self.scroll_x = ct.CTkScrollbar(self, orientation="horizontal", command=self.tree.xview)
+        self.tree.configure(xscrollcommand=self.scroll_x.set)
 
         # Griding in the table and scroller
         self.tree.grid(row=0, column=0, sticky='NSEW')
         self.scroll_y.grid(row=0, column=1, sticky='NSEW')
-        self.scroll_x.grid(row=1, column=0)
+        self.scroll_x.grid(row=1, column=0, sticky='NSEW')
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
         # Setting up columns
         self.tree.heading("#0", text='ID', )
         self.tree.column("#0", width=200, anchor='center', minwidth=200)
-        columns = ("Event Name", 'Date', 'Nature', "Description")
+        columns = ("Event Name", 'Date', 'Nature')
         self.tree["columns"] = columns
         for column in columns:
             self.tree.heading(column, text=column)
@@ -157,16 +200,10 @@ class EventsTable(ct.CTkFrame):
             else:
                 self.tree.column(column, width=200, anchor='center', minwidth=200)
 
-    # adds one event to treeview. NOT USED. might delete later
-    def add_event(self, event):
-        values = (event.name, event.date, event.is_sport, event.event_description)
-        event_id = str(event.event_id)
-        self.tree.insert("", 'end', event_id, text=event_id, values=values)
-
     # loads Events to treeview. called in EventController
     def load_events(self, events):
         for event in events:
-            values = (event.name, event.date, event.nature, event.event_description)
+            values = (event.name, event.date, event.nature)
             event_id = str(event.event_id)
             self.tree.insert("", 'end', event_id, text=event_id, values=values, tags=('ttk', 'simple', 'events'))
             self.tree.tag_configure('ttk', font=('Helvetica', 20, 'bold'), foreground='gray74', background='#343638')
@@ -349,7 +386,7 @@ class ViewTab(ct.CTkFrame):
         # Student_list
         self.student_list = tk.Listbox(self, height=3, borderwidth=10,
                                        width=15, background="#343638", activestyle='dotbox',
-                                       font=("Helvetica", 22, "bold"), foreground="gray"
+                                       font=("Helvetica", 15, "bold"), foreground="gray"
                                        )
         # student tools
         self.student_tools = ct.CTkFrame(self, fg_color='transparent')
@@ -385,6 +422,8 @@ class ViewTab(ct.CTkFrame):
         self.add_vars()
 
     def add_vars(self):
+        self.event_name.var = tk.StringVar(value="Event Name")
+        self.event_name.configure(textvariable=self.event_name.var)
         self.student_list.var = tk.StringVar(value=[])
         self.student_list.configure(listvariable=self.student_list.var)
         self.student_select.var = tk.StringVar()
