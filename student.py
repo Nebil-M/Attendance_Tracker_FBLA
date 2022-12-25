@@ -3,7 +3,8 @@ import random
 
 
 class Student:
-    def __init__(self, student_id: int, first_name: str, last_name: str, letter_grade: str, grade_level: int, points: int = 0):
+    def __init__(self, student_id: int, first_name: str, last_name: str, letter_grade: str, grade_level: int,
+                 points: int = 0):
         self.letter_grade_options = ["A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "F"]
 
         # data validation for the parameters :)
@@ -68,7 +69,8 @@ class StudentManager:
         self.remove_student(student_id)
 
         # Adds the new student with its updated details
-        self.add_student(student.student_id, student.first_name, student.last_name, student.letter_grade, student.grade_level, student.points)
+        self.add_student(student.student_id, student.first_name, student.last_name, student.letter_grade,
+                         student.grade_level, student.points)
 
         return student
 
@@ -125,3 +127,6 @@ class StudentManager:
 
     def generate_report(self):
         ...
+
+
+student_manager = StudentManager()
