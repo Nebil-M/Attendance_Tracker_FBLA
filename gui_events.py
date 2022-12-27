@@ -2,21 +2,21 @@ import tkinter as tk
 from tkinter import ttk
 import customtkinter as ct
 from func_utils import *
-from Events import EventManager
-from student import StudentManager
+from Events import event_manager
+from student import student_manager
 
 
 # Using EventController in order to separate logic from the view. Easier to scale up and debug this way. Later on,
 # we might just make one controller for both Events and Students or make a MetaController that is a parent of both
 class EventController:
-    def __init__(self, view, student_controller=None):
+    def __init__(self, view, student_model=None):
         # view = EventsFrame() getting student_controller, we need to make a way for event controller to access the
         # student manager that is created in gui_students. for now I will create my own for testing
-        self.student_controller = StudentManager()
+        self.student_model = student_manager
         # defining the view and model. view is EventFrame passed into Controller later on.
         # Model is the EventManger
         self.view = view
-        self.model = EventManager()
+        self.model = event_manager
 
         self.events_table = self.view.date_table
         self.event_tabs = self.view.event_tabs
@@ -24,17 +24,20 @@ class EventController:
         # Functions run Initially
         self.update_events_table()
         self.widget_bindings()
-        values = [f'{s.first_name} {s.last_name}, {s.student_id}' for s in self.student_controller.students]
-        self.event_tabs.view_tab.student_select.configure(values=values)
-        self.event_tabs.view_tab.student_select.var.set(value=values[0])
 
     # adds to model, deletes and repopulates items in view using update_events_table
     def add_event(self, event=None):
         add_tab = self.event_tabs.add_tab
-        self.model.add_event(add_tab.id.var.get(), add_tab.name.var.get(), add_tab.date.var.get(),
-                             add_tab.nature.var.get(),
-                             add_tab.description.get('0.0', 'end'))
-        self.update_events_table()
+        validation = self.validate_add_edit_tab(add_tab)
+        if validation == True:
+            self.model.add_event(add_tab.id.var.get(), add_tab.name.var.get(), add_tab.date.var.get(),
+                                 add_tab.nature.var.get(), add_tab.description.get('0.0', 'end'))
+            self.update_events_table()
+        else:
+            error_string = ''
+            for error in validation:
+                error_string += '\n' + error
+            tk.messagebox.showerror("showerror", "There were errors in data entry: " + error_string)
 
     # deletes an event in model, deletes and repopulates items in view update_events_table
     def delete_event(self, event=None):
@@ -47,23 +50,22 @@ class EventController:
 
     # Edits a selected event and updates treeview
     def edit_event(self, event=None):
-        selected_item = self.events_table.tree.focus()
         edit_tab = self.event_tabs.edit_tab
-        if selected_item:
+        selected_item = self.events_table.tree.focus()
+        validation = self.validate_add_edit_tab(edit_tab, selected_item)
+        if validation == True:
             event = self.model.get_event(selected_item)
-
-            other_events = [e for e in self.model.events if e != event]
-            if edit_tab.id.var.get() in [str(event.event_id) for event in other_events]:
-                raise Exception("This ID is already taken by another Event.")
-            else:
-                event.event_id = edit_tab.id.var.get()
-                event.name = edit_tab.name.var.get()
-                event.date = edit_tab.date.var.get()
-                event.nature = edit_tab.nature.var.get()
-                event.event_description = edit_tab.description.get('0.0', 'end')
+            event.event_id = edit_tab.id.var.get()
+            event.name = edit_tab.name.var.get()
+            event.date = edit_tab.date.var.get()
+            event.nature = edit_tab.nature.var.get()
+            event.event_description = edit_tab.description.get('0.0', 'end')
             self.update_events_table()
         else:
-            raise Exception("Item not selected")
+            error_string = ''
+            for error in validation:
+                error_string += '\n' + error
+            tk.messagebox.showerror("showerror", "There were errors in data entry: " + error_string)
 
     # callback to when a row is double clicked, populates the edit tab entries.
     def edit_select_fill(self, event=None):
@@ -94,8 +96,8 @@ class EventController:
 
     def add_student_view(self, event=None):
         selected_item = self.events_table.tree.focus()
-        id = self.event_tabs.view_tab.student_select.var.get().split()[2]
-        student = self.student_controller.get_student(int(id))
+        event_id = self.event_tabs.view_tab.student_select.var.get().split()[2]
+        student = self.student_model.get_student(int(event_id))
         event = self.model.get_event(selected_item)
         if event:
             if student not in event.attendees:
@@ -107,13 +109,33 @@ class EventController:
             raise Exception("No Event Selected")
 
     def delete_student_view(self, event=None):
-        indexs = self.event_tabs.view_tab.student_list.curselection()
+        indexes = self.event_tabs.view_tab.student_list.curselection()
         event = self.model.get_event(self.events_table.tree.focus())
         attendees = event.attendees
-        for idx in indexs:
-            event.delete_attendee(attendees[idx])
-        self.update_view_tab()
+        if event:
+            for idx in indexes:
+                event.delete_attendee(attendees[idx])
+            self.update_view_tab()
 
+    # Validation function
+    def validate_add_edit_tab(self, tab, selected_item=None):
+        data_entries = [tab.id.var.get(), tab.name.var.get(), tab.date.var.get(), tab.nature.var.get()]
+        errors = []
+        event = None
+        if selected_item:
+            event = self.model.get_event(selected_item)
+        elif tab == self.event_tabs.edit_tab:
+            errors.append('\tNo Event is selected')
+
+        errors.append(self.model.validate_id(data_entries[0], event))
+        errors.append(self.model.validate_event_name(data_entries[1]))
+        errors.append(self.model.validate_date(data_entries[2]))
+        errors.append(self.model.validate_nature(data_entries[3]))
+
+        errors = [error for error in errors if not isinstance(error, bool)]
+        return errors if errors else True
+
+    # Updates and bindings
     # updates the treeview each time it is called. Call it anytime the model is changed.
     # It deletes all items from treeview and repopulates them
     def update_events_table(self):
@@ -134,6 +156,10 @@ class EventController:
 
         self.event_tabs.view_tab.student_add.configure(command=self.add_student_view)
         self.event_tabs.view_tab.delete_student.configure(command=self.delete_student_view)
+
+        values = [f'{s.first_name} {s.last_name}, {s.student_id}' for s in self.student_model.students]
+        self.event_tabs.view_tab.student_select.configure(values=values)
+        self.event_tabs.view_tab.student_select.var.set(value=values[0])
 
 
 # Combining both frames
