@@ -41,49 +41,26 @@ class StudentManager:
                        'Candy': 8, 'Edison sticker': 5, 'Pencil': 1}
         self.load_data()
 
-    def add_student(self, student_id, first_name, last_name, letter_grade, grade_level, points=0):
+    def add_student(self, student_id: int, first_name: str, last_name: str, letter_grade: str, grade_level:int, points=0):
         self.students.append(Student(student_id, first_name, last_name, letter_grade, grade_level, points))
 
-    # This allows you to edit a student's details. The edit_attribute is the thing that you want to edit, like first_name, last_name, etc.
-    def edit_student(self, student_id, edit_attribute: str, new_value):
-        student = self.get_student(student_id)
-        possible_attributes = ["student_id", "first_name", "last_name", "letter_grade", "grade_level", "points"]
-
-        # Checks if the edit_attribute is one of the attributes that can be edited.
-        if edit_attribute not in possible_attributes:
-            raise ValueError(f"edit_attribute should be one of the following: {possible_attributes}")
-
-        # Changes the details of the student
-        # i hope there's an easier way to do this.
-        # Also just a note, there's no data validation here. we should add that at some point.
-        if edit_attribute == possible_attributes[0]:
-            student.student_id = new_value
-        elif edit_attribute == possible_attributes[1]:
-            student.first_name = new_value
-        elif edit_attribute == possible_attributes[2]:
-            student.last_name = new_value
-        elif edit_attribute == possible_attributes[3]:
-            student.letter_grade = new_value
-
-        # Removes the old student with its old details
-        self.remove_student(student_id)
-
-        # Adds the new student with its updated details
-        self.add_student(student.student_id, student.first_name, student.last_name, student.letter_grade,
-                         student.grade_level, student.points)
-
-        return student
-
-    def remove_student(self, student_id):
+    def remove_student(self, student_id: int):
         try:
             self.students.remove(self.get_student(student_id))
         except ValueError:
-            print("ValueError with the remove method in student.py StudentManager class")
+            print(f"The student_id {student_id} does not match anyone.")
 
-    def get_student(self, student_id):
+    def get_student(self, student_id: int):
         for student in self.students:
+            # Checks if the programmer made a mistake, accidentally making student.student_id a string.
+            if isinstance(student.student_id, str):
+                raise ValueError("student.student_id should not be a string.")
+
+            # Returns the student if the ID matches
             if student_id == student.student_id:
                 return student
+
+        raise Exception(f"The student ID {student_id} {type(student_id)} does not match any of the students. ")
 
     def reset_points(self):
         for student in self.students:

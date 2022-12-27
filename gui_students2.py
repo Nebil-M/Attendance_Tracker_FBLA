@@ -1,22 +1,159 @@
 # This file has the GUI for the students but without classes, without object oriented programming.
+import tkinter as tk
 from tkinter import ttk
 import customtkinter as ct
 from student import *
+from func_utils import *
 
 
+class StudentController:
+    def __init__(self, view):
+        # view is StudentsFrame passed into Controller later on.
+        self.view = view
+
+        # Makes new local variables so it can access the table and tabs here
+        self.students_table = self.view.table
+        self.student_tabs = self.view.student_tabs
+
+        # Populates the data from pkl file into table
+        self.update_students_table()
+
+        # Binds the widgets
+        self.widget_bindings()
+
+    # Adds a new student by getting the info from the Entrys, creating a Student and updating the table
+    def add_student(self):
+
+        add_tab = self.student_tabs.add_tab
+
+        # Adds the student
+        student_manager.add_student(int(add_tab.student_id.var.get()), add_tab.first_name.var.get(),
+                                    add_tab.last_name.var.get(),
+                                    add_tab.letter_grade.var.get(),
+                                    int(add_tab.grade_level.get()))
+
+        # Saves the student into the pkl file
+        student_manager.save_data()
+
+        # Updates the treeview with the new data
+        self.update_students_table()
+
+        self.clear_entries(self.student_tabs.add_tab)
+
+    def edit_student(self):
+        # Gets the selected student's ID
+        selection = self.students_table.tree.focus()
+
+        edit_tab = self.student_tabs.edit_tab
+        # Checks whether the selection is empty or not
+        if selection:
+            # Assigns the current student details to the student variable
+            student = student_manager.get_student(int(selection))
+
+            # Assigns the new, updated student details to the student variable
+            # Important! When assigning these new values, make sure you convert it to the right data type.
+            student.student_id = int(edit_tab.student_id.var.get())
+            student.first_name = edit_tab.first_name.var.get()
+            student.last_name = edit_tab.last_name.var.get()
+            student.letter_grade = edit_tab.letter_grade.var.get()
+            student.grade_level = int(edit_tab.grade_level.var.get())
+
+            # Saves the student into the pkl file
+            student_manager.save_data()
+            # Updates the treeview with the new data
+            self.update_students_table()
+            # Cleans out the entries once the data is saved
+            self.clear_entries(self.student_tabs.edit_tab)
+
+    def remove_student(self):
+        # Gets the selected student's ID
+        selection = self.students_table.tree.focus()
+
+        edit_tab = self.student_tabs.edit_tab
+        # Checks whether the selection is empty or not
+        if selection:
+            # Removes the student
+            student_manager.remove_student(int(selection))
+
+            # Saves the data into the pkl file
+            student_manager.save_data()
+            # Updates the treeview with the new data
+            self.update_students_table()
+            # Cleans out the entries once the data is updated
+            self.clear_entries(self.student_tabs.edit_tab)
+
+    # Clears or resets the entries
+    def clear_entries(self, tab):
+        # Makes sure the tab is one of the tabs
+        tabs = (self.student_tabs.add_tab, self.student_tabs.edit_tab)
+        if tab not in tabs:
+            raise Exception(f"Parameter tab should be one of the following values: {tabs}")
+
+        # Resets the label unique to the edit_tab
+        if tab == self.student_tabs.edit_tab:
+            tab.label_student_selected.configure(text=f"Student selected:  None")
+
+        # Resets the entries
+        tab.student_id.var.set("")
+        tab.first_name.var.set("")
+        tab.last_name.var.set("")
+        tab.letter_grade.var.set("Select a letter grade")
+        tab.grade_level.var.set("")
+
+    # updates the treeview each time it is called. Call it anytime the model is changed.
+    # It deletes all items from treeview and repopulates them
+    def update_students_table(self):
+        self.students_table.tree.delete(*self.students_table.tree.get_children())
+        self.students_table.load_students(student_manager.students)
+
+    # Changes the label in the edit tab when a student is selected on the treeview
+    def on_selection(self, event=None):
+        # Gets the selected item
+        selection = self.students_table.tree.focus()
+        edit_tab = self.student_tabs.edit_tab
+        # Checks if selection is empty or not
+        if selection:
+            # This variable stores the values of the selection
+            student = student_manager.get_student(int(selection))
+
+            # Changes the current tab to the Edit tab
+            self.student_tabs.tabview.set("Edit")
+
+            # The following lines fill out the Entry or Label widgets with the appropriate value from the Treeview's items
+            edit_tab.label_student_selected.configure(
+                text=f"Student selected:  {student.first_name} {student.last_name}")
+            edit_tab.student_id.var.set(student.student_id)
+            edit_tab.grade_level.var.set(student.grade_level)
+            edit_tab.letter_grade.var.set(student.letter_grade)
+            edit_tab.first_name.var.set(student.first_name)
+            edit_tab.last_name.var.set(student.last_name)
+
+    def widget_bindings(self):
+        self.students_table.tree.tag_bind("student", '<Double-1>', self.on_selection)
+        self.student_tabs.add_tab.save.configure(command=self.add_student)
+        self.student_tabs.edit_tab.save.configure(command=self.edit_student)
+        self.student_tabs.edit_tab.delete.configure(command=self.remove_student)
+
+
+# This class creates and grids all the widgets from other classes. The main purpose is to use the variables here.
 class StudentsFrame(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.table = StudentsTable(self)
-        self.table.grid(row=0, column=0, sticky='NEWS', padx=10, pady=30)
+        # Makes it resizeable
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
-        sm = StudentManager()
-        self.table.load_students(sm.students)
+        self.columnconfigure(1, weight=1)
 
-        myStudent = Student(58010001, "abcdefghijklmnopqrstuvwxyz", "test", "A", 11)
-        self.table.add_student(myStudent)
+        self.table = StudentsTable(self)
+        self.table.grid(row=0, column=0, sticky='NEWS', padx=10, pady=30)
+
+        # The tabs
+        self.student_tabs = Tabs(self)
+        self.student_tabs.grid(row=0, column=1, sticky='NES')
+
+        # Fixing the bug with placeholders for all entries that is a child of this widget.
+        place_holder_bind_all(self)
 
 
 class StudentsTable(ct.CTkFrame):
@@ -37,11 +174,11 @@ class StudentsTable(ct.CTkFrame):
 
         # columns is in the proper order for the student object to just dump its data into the tree view.
         # displaycolumns is the order the columns are shown.
-        columns = ("Student ID", "First name", "Last name", "Letter grade", "Grade Level")
+        columns = ("Student ID", "First name", "Last name", "Letter grade", "Grade Level", "Points")
 
         # Initializes and grids the treeview
         self.tree = ttk.Treeview(self, selectmode="browse", columns=columns, displaycolumns=(
-            "Student ID", "Grade Level", "First name", "Last name", "Letter grade"),
+            "Student ID", "Grade Level", "First name", "Last name", "Letter grade", "Points"),
                                  show="headings")  # btw show="headings" essentially hides the first "#0" column
         self.tree.grid(row=0, column=0, sticky='NEWS')
 
@@ -57,6 +194,7 @@ class StudentsTable(ct.CTkFrame):
             self.tree.heading(column, text=column)
             self.tree.column(column, width=200, anchor='center', minwidth=200)
 
+    # Do NOT use this function to add students. This only affects the treeview, not the actual data. Only use for testing.
     def add_student(self, student):
         values = (student.student_id, student.first_name, student.last_name, student.letter_grade, student.grade_level)
         student_id = str(student.student_id)
@@ -65,157 +203,167 @@ class StudentsTable(ct.CTkFrame):
     def load_students(self, students):
         for student in students:
             values = (
-                student.student_id, student.first_name, student.last_name, student.letter_grade, student.grade_level)
+                student.student_id, student.first_name, student.last_name, student.letter_grade, student.grade_level,
+                student.points)
             student_id = str(student.student_id)
             self.tree.insert("", 'end', student_id, text=student_id, values=values, tags=("ttk", "student"))
         self.tree.tag_configure("ttk", font=('Helvetica', 20, 'bold'), foreground='gray74', background='#343638')
-        # self.tree.tag_configure("student", background='yellow')
-        self.tree.tag_bind("student", "<Double-1>", self.on_selection)
-
-    # Changes the label in the edit tab when a student is selected on the treeview
-    def on_selection(self, event):
-        # Gets the selected item
-        selection = self.tree.focus()
-        # Checks if selection is empty or not
-        if selection:
-            # This variable stores the values of the selection
-            text = self.tree.item(selection)['values']
-            # print(text, text[1], text[2], type(text))
-
-            # Changes the current tab to the Edit tab
-            tabs.tabview.set("Edit")
-            # The following lines fill out the Entry or Label widgets with the appropriate value from the Treeview's items
-            # These use lowercase tabs because it's referring to the instance of the object (which is created at the bottom, after the class. this is bad practice(probably), i know).
-            tabs.label_student_selected.configure(text=f"Student selected:  {text[1]} {text[2]}")
-            tabs.student_id_value.set(text[0])
-            tabs.grade_level_value.set(text[4])
-            tabs.letter_grade_value.set(text[3])
-            tabs.first_name_value.set(text[1])
-            tabs.last_name_value.set(text[2])
 
 
 class Tabs(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.letter_grade_options = ["A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "F"]
-
-        root.rowconfigure(0, weight=1)
-        root.columnconfigure(0, weight=1)
 
         # Initializes the tabs
-        # The argument width and height refers to the size of the whole tab frame, not the tab labels
-        self.tabview = ct.CTkTabview(root, width=200)
-        self.tabview.grid(row=0, column=1, sticky="NES")
+        self.tabview = ct.CTkTabview(self)
+        self.tabview.grid(row=0, column=1, sticky="NEWS")
 
         # Creates the tab frames
-        self.tab_add_students = self.tabview.add("Add")
-        self.tab_edit_students = self.tabview.add("Edit")
+        self.tabview.add("Add")
+        self.tabview.add("Edit")
         # Sets the current visible tab to the "Add" tab
         self.tabview.set("Add")
 
+        # Adds the widgets contained in the AddTab object and EditTab to the frame
+        # There are two arguments because it throws an error otherwise.
+        self.add_tab = AddTab(self.tabview.tab("Add"), self.tabview.tab("Add"))
+        self.edit_tab = EditTab(self.tabview.tab("Edit"), self.tabview.tab("Edit"))
+
+
+# Creates the layout of the content in the add tab
+class AddTab(ct.CTkFrame):
+    def __init__(self, tab, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.configure(fg_color="transparent")
+
+        self.letter_grade_options = ["A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "F"]
+
+        # Creates the widgets
+        self.student_id = ct.CTkEntry(tab, placeholder_text="Student ID", width=160)
+        self.grade_level = ct.CTkEntry(tab, placeholder_text="Grade level", width=160)
+        self.first_name = ct.CTkEntry(tab, placeholder_text="First name", width=160)
+        self.last_name = ct.CTkEntry(tab, placeholder_text="Last name", width=160)
+        self.letter_grade = ct.CTkOptionMenu(tab, values=self.letter_grade_options, width=160)
+        self.save = ct.CTkButton(tab, text="Save", width=80)
+
+        # Grids the widgets and adds the labels
         pad = (0, 10)
-        # The below widgets are in the tab_add_students frame
-        ct.CTkLabel(self.tab_add_students, text="Add a new student:").grid(row=0, column=0, sticky="W", pady=(10, 20))
+        ct.CTkLabel(tab, text="Add a new student:").grid(row=0, column=0, sticky="W", pady=(10, 20))
+        ct.CTkLabel(tab, text="Student ID").grid(row=1, column=0, sticky="W")
+        self.student_id.grid(row=2, column=0, sticky="W", pady=pad)
+        ct.CTkLabel(tab, text="Grade level").grid(row=3, column=0, sticky="W")
+        self.grade_level.grid(row=4, column=0, sticky="W", pady=pad)
+        ct.CTkLabel(tab, text="First name").grid(row=5, column=0, sticky="W")
+        self.first_name.grid(row=6, column=0, sticky="W", pady=pad)
+        ct.CTkLabel(tab, text="Last name").grid(row=7, column=0, sticky="W")
+        self.last_name.grid(row=8, column=0, sticky="W", pady=pad)
+        ct.CTkLabel(tab, text="Letter grade").grid(row=9, column=0, sticky="W")
+        self.letter_grade.grid(row=10, column=0, sticky="W", pady=pad)
+        # the save button's y padding is very high, to make it appear in the same place in both the add and edit tab.
+        self.save.grid(row=11, column=0, sticky="SW", pady=(105, 10), padx=(200, 0))
 
-        # Width for the Entrys are 160, while width for Save button is 80
-        # Student ID
-        ct.CTkLabel(self.tab_add_students, text="Student ID").grid(row=1, column=0, sticky="W")
-        student_id = ct.CTkEntry(self.tab_add_students, placeholder_text="Student ID", width=160)
-        student_id.grid(row=2, column=0, sticky="W", pady=pad)
+        # applying a weight of 1 to all cells
+        limited_weight_cells(self)
+        # add vars to all entries
+        self.add_vars_to_entries()
 
-        # Grade level
-        ct.CTkLabel(self.tab_add_students, text="Grade level").grid(row=3, column=0, sticky="W")
-        grade_level = ct.CTkEntry(self.tab_add_students, placeholder_text="Grade level", width=160)
-        grade_level.grid(row=4, column=0, sticky="W", pady=pad)
+    # Gives the entries variables so we can access their data later
+    def add_vars_to_entries(self):
+        self.student_id.var = tk.StringVar()
+        self.student_id.configure(textvariable=self.student_id.var)
+        self.grade_level.var = tk.StringVar()
+        self.grade_level.configure(textvariable=self.grade_level.var)
+        self.first_name.var = tk.StringVar()
+        self.first_name.configure(textvariable=self.first_name.var)
+        self.last_name.var = tk.StringVar()
+        self.last_name.configure(textvariable=self.last_name.var)
+        self.letter_grade.var = tk.StringVar(value="Select a letter grade")
+        self.letter_grade.configure(variable=self.letter_grade.var)
 
-        # First name
-        ct.CTkLabel(self.tab_add_students, text="First name").grid(row=5, column=0, sticky="W")
-        first_name = ct.CTkEntry(self.tab_add_students, placeholder_text="First name", width=160)
-        first_name.grid(row=6, column=0, sticky="W", pady=pad)
+        # The following lines are just for testing purposes.
+        # self.student_id.var.set("58010001")
+        # self.grade_level.var.set("9")
+        # self.first_name.var.set("Foo")
+        # self.last_name.var.set("Bar")
+        # self.letter_grade.var.set("B")
 
-        # Last name
-        ct.CTkLabel(self.tab_add_students, text="Last name").grid(row=7, column=0, sticky="W")
-        last_name = ct.CTkEntry(self.tab_add_students, placeholder_text="Last name", width=160)
-        last_name.grid(row=8, column=0, sticky="W", pady=pad)
 
-        # Letter grade
-        ct.CTkLabel(self.tab_add_students, text="Letter grade").grid(row=9, column=0, sticky="W")
-        letter_grade = ct.CTkOptionMenu(self.tab_add_students, values=self.letter_grade_options, width=160)
-        letter_grade.grid(row=10, column=0, sticky="W", pady=pad)
-        letter_grade.set("Select a letter grade")
+# Creates the layout of the content in the edit tab
+class EditTab(ct.CTkFrame):
+    def __init__(self, tab, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.configure(fg_color="transparent")
 
-        # Save
-        save = ct.CTkButton(self.tab_add_students, text="Save", width=80)
-        save.grid(row=11, column=0, sticky="SE", pady=(50, 10))
+        self.letter_grade_options = ["A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "F"]
 
-        # The below widgets are in the tab_edit_students frame
-        # Text labels that give the user instructions.
-        ct.CTkLabel(self.tab_edit_students, text="Edit student details:").grid(row=0, column=0, sticky="W", pady=10)
-        ct.CTkLabel(self.tab_edit_students, text="Please select a student.").grid(row=1, column=0, sticky="W")
+        # Creates the widgets
+        self.label_student_selected = ct.CTkLabel(tab, text="Student selected: None")
+        self.student_id = ct.CTkEntry(tab, placeholder_text="Student ID", width=160)
+        self.grade_level = ct.CTkEntry(tab, placeholder_text="Grade level", width=160)
+        self.first_name = ct.CTkEntry(tab, placeholder_text="First name", width=160)
+        self.last_name = ct.CTkEntry(tab, placeholder_text="Last name", width=160)
+        self.letter_grade = ct.CTkOptionMenu(tab, values=self.letter_grade_options, width=160)
+        self.delete = ct.CTkButton(tab, text="Delete", width=80, fg_color="#990000", hover_color="#800000")
+        self.save = ct.CTkButton(tab, text="Save", width=80)
 
-        # Text label that dynamically changes as a student is selected in the treeview.
-        self.label_student_selected = ct.CTkLabel(self.tab_edit_students, text="Student selected: ")
+        # Grids the widgets and makes the labels
+        pad = (0, 10)
+        ct.CTkLabel(tab, text="Edit student details:").grid(row=0, column=0, sticky="W", pady=10)
+        ct.CTkLabel(tab, text="Please double click on the left to select a student.").grid(row=1, column=0, sticky="W", columnspan=2)
         self.label_student_selected.grid(row=2, column=0, sticky="W", pady=(10, 0))
-
-        # Student ID
-        ct.CTkLabel(self.tab_edit_students, text="Student ID").grid(row=4, column=0, sticky="W", pady=(10, 0))
-        self.student_id_value = ct.StringVar()
-        self.student_id = ct.CTkEntry(self.tab_edit_students, textvariable=self.student_id_value,
-                                      placeholder_text="Student ID", width=160)
+        ct.CTkLabel(tab, text="Student ID").grid(row=4, column=0, sticky="W", pady=(10, 0))
         self.student_id.grid(row=5, column=0, sticky="W", pady=pad)
-
-        # Grade level
-        ct.CTkLabel(self.tab_edit_students, text="Grade level").grid(row=6, column=0, sticky="W")
-        self.grade_level_value = ct.StringVar()
-        self.grade_level = ct.CTkEntry(self.tab_edit_students, textvariable=self.grade_level_value,
-                                       placeholder_text="Grade level", width=160)
+        ct.CTkLabel(tab, text="Grade level").grid(row=6, column=0, sticky="W")
         self.grade_level.grid(row=7, column=0, sticky="W", pady=pad)
-
-        # First name
-        ct.CTkLabel(self.tab_edit_students, text="First name").grid(row=8, column=0, sticky="W")
-        self.first_name_value = ct.StringVar()
-        self.first_name = ct.CTkEntry(self.tab_edit_students, textvariable=self.first_name_value,
-                                      placeholder_text="First name", width=160)
+        ct.CTkLabel(tab, text="First name").grid(row=8, column=0, sticky="W")
         self.first_name.grid(row=9, column=0, sticky="W", pady=pad)
-
-        # Last name
-        ct.CTkLabel(self.tab_edit_students, text="Last name").grid(row=10, column=0, sticky="W")
-        self.last_name_value = ct.StringVar(value=None)
-        self.last_name = ct.CTkEntry(self.tab_edit_students, textvariable=self.last_name_value,
-                                     placeholder_text="Last name", width=160)
+        ct.CTkLabel(tab, text="Last name").grid(row=10, column=0, sticky="W")
         self.last_name.grid(row=11, column=0, sticky="W", pady=pad)
-
-        # Letter grade
-        ct.CTkLabel(self.tab_edit_students, text="Letter grade").grid(row=12, column=0, sticky="W")
-        self.letter_grade_value = ct.StringVar()
-        self.letter_grade = ct.CTkOptionMenu(self.tab_edit_students, variable=self.letter_grade_value,
-                                             values=self.letter_grade_options, width=160)
+        ct.CTkLabel(tab, text="Letter grade").grid(row=12, column=0, sticky="W")
         self.letter_grade.grid(row=13, column=0, sticky="W", pady=pad)
-        self.letter_grade.set("Select a letter grade")
+        self.delete.grid(row=14, column=0, sticky="W", pady=(40, 10))
+        self.save.grid(row=14, column=1, sticky="SW", pady=(40, 10), padx=(40, 0))
 
-        # Save
-        save = ct.CTkButton(self.tab_edit_students, text="Save", width=80)
-        save.grid(row=14, column=0, sticky="SE", pady=(50, 10))
+        # add vars to all entries
+        self.add_vars_to_entries()
+
+    # Gives the entries variables so we can access their data later
+    def add_vars_to_entries(self):
+        self.student_id.var = tk.StringVar()
+        self.student_id.configure(textvariable=self.student_id.var)
+        self.grade_level.var = tk.StringVar()
+        self.grade_level.configure(textvariable=self.grade_level.var)
+        self.first_name.var = tk.StringVar()
+        self.first_name.configure(textvariable=self.first_name.var)
+        self.last_name.var = tk.StringVar()
+        self.last_name.configure(textvariable=self.last_name.var)
+        self.letter_grade.var = tk.StringVar(value="Select a letter grade")
+        self.letter_grade.configure(variable=self.letter_grade.var)
 
 
 if __name__ == "__main__":
     # Initializes the window
-    root = ct.CTk()
-    root.geometry()
-    root.title("Attendance Tracker")
+    window = ct.CTk()
+    window.geometry()
+    window.title("Attendance Tracker")
     ct.set_appearance_mode("dark")
     ct.set_default_color_theme("dark-blue")
 
     # don't change the variable name tabs or move it around or else the program will explode.
-    tabs = Tabs(root)
+    # tabs = Tabs(window)
 
-    # students_table = StudentsTable(root)
-    StudentsFrame(root).grid(row=0, column=0, sticky='NEWS')
+    # students_table = StudentsTable(window)
 
-    root.rowconfigure(0, weight=1)
-    root.columnconfigure(0, weight=1)
-    root.columnconfigure(1, weight=1)
+    s = StudentsFrame(window)
+    s.grid(row=0, column=0, sticky='NEWS')
 
-    root.minsize(875, 525)
+    controller = StudentController(s)
 
-    root.mainloop()
+    window.rowconfigure(0, weight=1)
+    window.columnconfigure(0, weight=1)
+    window.columnconfigure(1, weight=1)
+
+    # Sets the minimum size of the window
+    window.minsize(875, 575)
+
+    window.mainloop()
