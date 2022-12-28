@@ -30,7 +30,7 @@ class EventController:
         add_tab = self.event_tabs.add_tab
         validation = self.validate_add_edit_tab(add_tab)
         if validation == True:
-            self.model.add_event(add_tab.id.var.get(), add_tab.name.var.get(), add_tab.date.var.get(),
+            self.model.add_event(int(add_tab.id.var.get()), add_tab.name.var.get(), add_tab.date.var.get(),
                                  add_tab.nature.var.get(), add_tab.description.get('0.0', 'end'))
             self.update_events_table()
         else:
@@ -55,7 +55,7 @@ class EventController:
         validation = self.validate_add_edit_tab(edit_tab, selected_item)
         if validation == True:
             event = self.model.get_event(selected_item)
-            event.event_id = edit_tab.id.var.get()
+            event.event_id = int(edit_tab.id.var.get())
             event.name = edit_tab.name.var.get()
             event.date = edit_tab.date.var.get()
             event.nature = edit_tab.nature.var.get()
