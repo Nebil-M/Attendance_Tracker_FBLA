@@ -71,22 +71,22 @@ class EventManager:
         try:
             id = int(id)
         except ValueError:
-            return "\tEvent ID must be composed of Integers."
+            return "\tThe Event ID may only include whole numbers."
 
         ids = [event.event_id for event in self.events]
         if not 92180000 <= id <= 92189999:
-            return "\tEvent ID must be between 9218000 and 9218999"
+            return "\tThe Event ID must be an 8 digit number starting with 9218."
         elif event:
             other_events_id = [e.event_id for e in self.events if e != event]
             if id in other_events_id:
-                return "\tThis Event ID is already taken by another Event."
+                return "\tThis Event ID is already assigned to another event."
         elif id in ids:
-            return '\tThis Event ID is already used. Use a unique Event ID.'
+            return '\tThis Event ID is already assigned to another event.'
         return True
 
     def validate_event_name(self, name):
         if not name.replace(' ', '').isalpha():
-            return '\tEvent name must only be composed of letters.'
+            return '\tThe Event name may only include letters and spaces.'
 
         return True
 
@@ -94,20 +94,20 @@ class EventManager:
         try:
             datetime.datetime.strptime(date, '%m/%d/%Y')
         except ValueError:
-            return '\tDate must be in MM/DD/YYY format.'
+            return '\tThe Date must be in the MM/DD/YYYY format.'
 
         return True
 
     def validate_nature(self, nature):
         if not nature.replace(' ', '').isalpha():
-            return '\tNature entry must only be composed of letters.'
+            return '\tThe Nature may only include letters and spaces.'
         return True
 
     def validate_id_other_events(self, event):
         if not self.validate_id(event.id):
-            other_events_id = [e.event_id for e in self.events if e != event]
-            if event.event_id in other_events_id:
-                return "This ID is already taken by another Event."
+            other_events_id = [e.event_id for e in self.events if e.event_id != event.event_id]
+            if id in other_events_id:
+                return "This Event ID is already assigned to another event."
         else:
             return self.validate_id(event.id)
 
