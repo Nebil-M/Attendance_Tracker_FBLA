@@ -77,10 +77,6 @@ class EventManager:
         if not 92180000 <= id <= 92189999:
             return "\tEvent ID must be between 9218000 and 9218999"
         elif event:
-            try:
-                event.event_id = int(event.event_id)
-            except ValueError:
-                return "\tEvent ID must be composed of Integers."
             other_events_id = [e.event_id for e in self.events if e != event]
             if id in other_events_id:
                 return "\tThis Event ID is already taken by another Event."
