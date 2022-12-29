@@ -68,6 +68,8 @@ class EventManager:
 
     # Validation Methods
     def validate_id(self, id, event=None):
+        if id == "ID":
+            return "The Event ID must be filled out"
         try:
             id = int(id)
         except ValueError:
@@ -85,6 +87,9 @@ class EventManager:
         return True
 
     def validate_event_name(self, name):
+        if name == "Event Name":
+            return "The Event Name must be filled out"
+
         if not name.replace(' ', '').isalpha():
             return '\tThe Event name may only include letters and spaces.'
 
@@ -102,14 +107,5 @@ class EventManager:
         if not nature.replace(' ', '').isalpha():
             return '\tThe Nature may only include letters and spaces.'
         return True
-
-    def validate_id_other_events(self, event):
-        if not self.validate_id(event.id):
-            other_events_id = [e.event_id for e in self.events if e.event_id != event.event_id]
-            if id in other_events_id:
-                return "This Event ID is already assigned to another event."
-        else:
-            return self.validate_id(event.id)
-
 
 event_manager = EventManager()
