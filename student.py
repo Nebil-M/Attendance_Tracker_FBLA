@@ -41,7 +41,8 @@ class StudentManager:
                        'Candy': 8, 'Edison sticker': 5, 'Pencil': 1}
         self.load_data()
 
-    def add_student(self, student_id: int, first_name: str, last_name: str, letter_grade: str, grade_level:int, points=0):
+    def add_student(self, student_id: int, first_name: str, last_name: str, letter_grade: str, grade_level: int,
+                    points=0):
         self.students.append(Student(student_id, first_name, last_name, letter_grade, grade_level, points))
 
     def remove_student(self, student_id: int):
@@ -104,6 +105,72 @@ class StudentManager:
 
     def generate_report(self):
         ...
+
+    def validate_id(self, student_id: str, student=None):
+        if student_id == "Student ID":
+            return "\tThe Student ID must be filled out."
+
+        try:
+            student_id = int(student_id)
+        except ValueError:
+            return "\tThe Student ID may only include whole numbers."
+
+        ids = [student.student_id for student in self.students]
+        if student_id < 58010000 or student_id > 58019999:
+            return "\tThe Student ID must be an 8 digit number starting with 5801."
+        elif student:
+            other_students_id = [s.student_id for s in self.students if s.student_id != student.student_id]
+            if student_id in other_students_id:
+                return "\tThis Student ID is already assigned to another student."
+        elif student_id in ids:
+            return "\tThis Student ID is already assigned to another student."
+
+        # If none of the other return statements are triggered, return True (meaning it passed the tests.)
+        return True
+
+    def validate_first_name(self, first_name):
+        if first_name == "First name":
+            return "\tThe student's first name must be filled out."
+
+        # Gets rid of spaces and hyphens, which means the name may have spaces or hyphens.
+        first_name = first_name.replace(' ', '').replace('-', '')
+        if not first_name.isalpha():
+            return "\tThe student's first name may only include letters, hyphens, and spaces."
+
+        # If none of the other return statements are triggered, return True (meaning it passed the tests.)
+        return True
+
+    def validate_last_name(self, last_name):
+        if last_name == "Last name":
+            return "\tThe student's last name must be filled out."
+
+        # Gets rid of spaces and hyphens, which means the name may have spaces or hyphens.
+        last_name = last_name.replace(' ', '').replace('-', '')
+
+        if not last_name.isalpha():
+            return "\tThe student's last name may only include letters, hyphens, and spaces."
+
+        # If none of the other return statements are triggered, return True (meaning it passed the tests.)
+        return True
+
+    def validate_grade_level(self, grade_level: str):
+        grade_level_options = ['9', '10', '11', '12']
+
+        if grade_level not in grade_level_options:
+            return "\tA grade level must be selected."
+
+        # If none of the other return statements are triggered, return True (meaning it passed the tests.)
+        return True
+
+    def validate_letter_grade(self, letter_grade):
+        # No A+ in the options, because our school district does not have A+ available.
+        letter_grade_options = ["A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "F"]
+
+        if letter_grade not in letter_grade_options:
+            return "\tA letter grade must be selected."
+
+        # If none of the other return statements are triggered, return True (meaning it passed the tests.)
+        return True
 
 
 student_manager = StudentManager()

@@ -2,7 +2,7 @@
 import tkinter as tk
 from tkinter import ttk
 import customtkinter as ct
-from student import *
+from student import student_manager
 from func_utils import *
 
 
@@ -26,27 +26,38 @@ class StudentController:
 
         add_tab = self.student_tabs.add_tab
 
-        # Adds the student
-        student_manager.add_student(int(add_tab.student_id.var.get()), add_tab.first_name.var.get(),
-                                    add_tab.last_name.var.get(),
-                                    add_tab.letter_grade.var.get(),
-                                    int(add_tab.grade_level.get()))
+        validation = self.validate_data(add_tab)
 
-        # Saves the student into the pkl file
-        student_manager.save_data()
+        if validation == True:
+            # Adds the student
+            student_manager.add_student(int(add_tab.student_id.var.get()), add_tab.first_name.var.get(),
+                                        add_tab.last_name.var.get(),
+                                        add_tab.letter_grade.var.get(),
+                                        int(add_tab.grade_level.get()))
 
-        # Updates the treeview with the new data
-        self.update_students_table()
+            # Saves the student into the pkl file
+            # commented out for testing
+            # student_manager.save_data()
 
-        self.clear_entries(self.student_tabs.add_tab)
+            # Updates the treeview with the new data
+            self.update_students_table()
+
+            self.clear_entries(self.student_tabs.add_tab)
+
+        else:
+            error_string = ''
+            for error in validation:
+                error_string += '\n' + error
+            tk.messagebox.showerror("Error", "The following data entry errors occured:" + error_string)
 
     def edit_student(self):
         # Gets the selected student's ID
         selection = self.students_table.tree.focus()
 
         edit_tab = self.student_tabs.edit_tab
-        # Checks whether the selection is empty or not
-        if selection:
+        validation = self.validate_data(edit_tab, selection)
+
+        if validation == True:
             # Assigns the current student details to the student variable
             student = student_manager.get_student(int(selection))
 
@@ -59,11 +70,17 @@ class StudentController:
             student.grade_level = int(edit_tab.grade_level.var.get())
 
             # Saves the student into the pkl file
-            student_manager.save_data()
+            # commented out for testing
+            # student_manager.save_data()
             # Updates the treeview with the new data
             self.update_students_table()
             # Cleans out the entries once the data is saved
             self.clear_entries(self.student_tabs.edit_tab)
+        else:
+            error_string = ''
+            for error in validation:
+                error_string += '\n' + error
+            tk.messagebox.showerror("Error", "The following data entry errors occured:" + error_string)
 
     def remove_student(self):
         # Gets the selected student's ID
@@ -76,11 +93,40 @@ class StudentController:
             student_manager.remove_student(int(selection))
 
             # Saves the data into the pkl file
-            student_manager.save_data()
+            # commented out for testing
+            # student_manager.save_data()
             # Updates the treeview with the new data
             self.update_students_table()
             # Cleans out the entries once the data is updated
             self.clear_entries(self.student_tabs.edit_tab)
+
+    # Data validation!
+    def validate_data(self, tab, selection=None):
+        # Makes sure the tab is one of the tabs
+        tabs = (self.student_tabs.add_tab, self.student_tabs.edit_tab)
+        if tab not in tabs:
+            raise Exception(f"Parameter tab should be one of the following values: {tabs}")
+
+        data_entries = [tab.student_id.var.get(), tab.grade_level.var.get(), tab.first_name.var.get(), tab.last_name.var.get(), tab.letter_grade.var.get()]
+        errors = []
+        student = None
+
+        if selection:
+            student = student_manager.get_student(int(selection))
+        elif tab == self.student_tabs.edit_tab:
+            errors.append('\tNo student is selected.')
+
+        errors.append(student_manager.validate_id(data_entries[0], student))
+        errors.append(student_manager.validate_grade_level(data_entries[1]))
+        errors.append(student_manager.validate_first_name(data_entries[2]))
+        errors.append(student_manager.validate_last_name(data_entries[3]))
+        errors.append(student_manager.validate_letter_grade(data_entries[4]))
+
+        # Gets rid of the True values in errors, which means the test passed.
+        errors = [error for error in errors if not isinstance(error, bool)]
+
+        return errors if errors else True
+
 
     # Clears or resets the entries
     def clear_entries(self, tab):
@@ -98,7 +144,7 @@ class StudentController:
         tab.first_name.var.set("")
         tab.last_name.var.set("")
         tab.letter_grade.var.set("Select a letter grade")
-        tab.grade_level.var.set("")
+        tab.grade_level.var.set("Select a grade level")
 
     # updates the treeview each time it is called. Call it anytime the model is changed.
     # It deletes all items from treeview and repopulates them
@@ -237,10 +283,11 @@ class AddTab(ct.CTkFrame):
         self.configure(fg_color="transparent")
 
         self.letter_grade_options = ["A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "F"]
+        self.grade_level_options = ['9', '10', '11', '12']
 
         # Creates the widgets
         self.student_id = ct.CTkEntry(tab, placeholder_text="Student ID", width=160)
-        self.grade_level = ct.CTkEntry(tab, placeholder_text="Grade level", width=160)
+        self.grade_level = ct.CTkOptionMenu(tab, values=self.grade_level_options, width=160)
         self.first_name = ct.CTkEntry(tab, placeholder_text="First name", width=160)
         self.last_name = ct.CTkEntry(tab, placeholder_text="Last name", width=160)
         self.letter_grade = ct.CTkOptionMenu(tab, values=self.letter_grade_options, width=160)
@@ -271,8 +318,8 @@ class AddTab(ct.CTkFrame):
     def add_vars_to_entries(self):
         self.student_id.var = tk.StringVar()
         self.student_id.configure(textvariable=self.student_id.var)
-        self.grade_level.var = tk.StringVar()
-        self.grade_level.configure(textvariable=self.grade_level.var)
+        self.grade_level.var = tk.StringVar(value="Select a grade level")
+        self.grade_level.configure(variable=self.grade_level.var)
         self.first_name.var = tk.StringVar()
         self.first_name.configure(textvariable=self.first_name.var)
         self.last_name.var = tk.StringVar()
@@ -294,12 +341,13 @@ class EditTab(ct.CTkFrame):
         super().__init__(*args, **kwargs)
         self.configure(fg_color="transparent")
 
+        self.grade_level_options = ['9', '10', '11', '12']
         self.letter_grade_options = ["A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "F"]
 
         # Creates the widgets
         self.label_student_selected = ct.CTkLabel(tab, text="Student selected: None")
         self.student_id = ct.CTkEntry(tab, placeholder_text="Student ID", width=160)
-        self.grade_level = ct.CTkEntry(tab, placeholder_text="Grade level", width=160)
+        self.grade_level = ct.CTkOptionMenu(tab, values=self.grade_level_options, width=160)
         self.first_name = ct.CTkEntry(tab, placeholder_text="First name", width=160)
         self.last_name = ct.CTkEntry(tab, placeholder_text="Last name", width=160)
         self.letter_grade = ct.CTkOptionMenu(tab, values=self.letter_grade_options, width=160)
@@ -331,8 +379,8 @@ class EditTab(ct.CTkFrame):
     def add_vars_to_entries(self):
         self.student_id.var = tk.StringVar()
         self.student_id.configure(textvariable=self.student_id.var)
-        self.grade_level.var = tk.StringVar()
-        self.grade_level.configure(textvariable=self.grade_level.var)
+        self.grade_level.var = tk.StringVar(value="Select a grade level")
+        self.grade_level.configure(variable=self.grade_level.var)
         self.first_name.var = tk.StringVar()
         self.first_name.configure(textvariable=self.first_name.var)
         self.last_name.var = tk.StringVar()
