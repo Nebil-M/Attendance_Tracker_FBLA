@@ -1,5 +1,6 @@
 import pickle
 import datetime
+import weakref
 
 class Event:
     def __init__(self, event_id: int, name: str, date: str, nature: str, event_description: str):
@@ -10,13 +11,17 @@ class Event:
         self.nature = nature
         self.attendees = []
 
+    # Using weakreferences to store attendees so that they are deleted when they are deleted from studentmanager list
+    # one can call the weakrefernce to access the object by adding a () at the end of the weakreference
     def add_attendee(self, attendee):
-        self.attendees.append(attendee)
+        attendee_ref = weakref.ref(attendee)
+        self.attendees.append(attendee_ref)
         attendee.add_points(1)
 
-    def delete_attendee(self, remove_attendee):
-        self.attendees = [attendee for attendee in self.attendees if attendee != remove_attendee]
-        remove_attendee.points -= 1 if remove_attendee.points > 0 else 0
+    def delete_attendee(self, remove_attendee_ref):
+        attendee = remove_attendee_ref()
+        self.attendees.remove(remove_attendee_ref)
+        attendee.points -= 1 if attendee.points > 0 else 0
 
     def __str__(self):
         return self.name

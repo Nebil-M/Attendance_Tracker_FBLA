@@ -87,12 +87,12 @@ class EventController:
         event = self.model.get_event(selected_item)
         if event:
             if view_tab == self.event_tabs.winfo_children()[-1]:
+                attendee_names = [f'{student_ref().first_name} {student_ref().last_name}, {student_ref().student_id}'
+                                  for student_ref in event.attendees if student_ref()]
                 view_tab.event_name.var.set(event.name)
                 view_tab.description.delete("0.0", 'end')
                 view_tab.description.insert('end', event.event_description)
-                view_tab.student_list.var.set(event.attendees)
-        else:
-            raise Exception('No event Selected')
+                view_tab.student_list.var.set(attendee_names)
 
     def add_student_view(self, event=None):
         selected_item = self.events_table.tree.focus()
@@ -148,7 +148,7 @@ class EventController:
         event = self.model.get_event(selected_item)
         if not selected_item:
             errors.append('\tNo Event is selected')
-        elif student in event.attendees:
+        elif student in [s() for s in event.attendees if s]:
             errors.append('\tStudent already attended event')
 
         return errors if errors else True
@@ -175,7 +175,19 @@ class EventController:
         values = [f'{s.first_name} {s.last_name}, {s.student_id}' for s in self.student_model.students]
         self.event_tabs.view_tab.student_select.configure(values=values)
         self.event_tabs.view_tab.student_select.var.set(value=values[0])
-        self.view_select()
+        #self.view_select()
+        selected_item = self.events_table.tree.focus()
+        view_tab = self.event_tabs.view_tab
+        event = self.model.get_event(selected_item)
+        if not event:
+            item = self.events_table.tree.get_children()[0]
+            event = self.model.get_event(item)
+        attendee_names = [f'{student_ref().first_name} {student_ref().last_name}, {student_ref().student_id}'
+                          for student_ref in event.attendees if student_ref()]
+        view_tab.event_name.var.set(event.name)
+        view_tab.description.delete("0.0", 'end')
+        view_tab.description.insert('end', event.event_description)
+        view_tab.student_list.var.set(attendee_names)
 
     # All bindings and command configs to widgets are done here
     def widget_bindings(self):

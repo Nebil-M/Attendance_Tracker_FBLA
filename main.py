@@ -287,7 +287,7 @@ class NavigationFrame(customtkinter.CTkFrame):
     def cross_frame_func(self):
         self.SC.update_students_table()
         self.EC.update_events_table()
-        # self.EC.update_view_tab()
+        self.EC.update_view_tab()
 
 if __name__ == "__main__":
     app = App()
