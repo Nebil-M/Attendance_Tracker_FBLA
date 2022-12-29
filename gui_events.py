@@ -9,7 +9,7 @@ from student import student_manager
 # Using EventController in order to separate logic from the view. Easier to scale up and debug this way. Later on,
 # we might just make one controller for both Events and Students or make a MetaController that is a parent of both
 class EventController:
-    def __init__(self, view, student_model=None):
+    def __init__(self, view):
         # view = EventsFrame() getting student_controller, we need to make a way for event controller to access the
         # student manager that is created in gui_students. for now I will create my own for testing
         self.student_model = student_manager
@@ -87,37 +87,44 @@ class EventController:
         event = self.model.get_event(selected_item)
         if event:
             if view_tab == self.event_tabs.winfo_children()[-1]:
+                attendee_names = [f'{student_ref().first_name} {student_ref().last_name}, {student_ref().student_id}'
+                                  for student_ref in event.attendees if student_ref()]
                 view_tab.event_name.var.set(event.name)
                 view_tab.description.delete("0.0", 'end')
                 view_tab.description.insert('end', event.event_description)
-                view_tab.student_list.var.set(event.attendees)
-        else:
-            raise Exception('No event Selected')
+                view_tab.student_list.var.set(attendee_names)
 
     def add_student_view(self, event=None):
         selected_item = self.events_table.tree.focus()
-        event_id = self.event_tabs.view_tab.student_select.var.get().split()[2]
-        student = self.student_model.get_student(int(event_id))
+        student_id = self.event_tabs.view_tab.student_select.var.get().split()[2]
+        student = self.student_model.get_student(int(student_id))
         event = self.model.get_event(selected_item)
-        if event:
-            if student not in event.attendees:
-                event.add_attendee(student)
-                self.update_view_tab()
-            else:
-                raise Exception("Student already attended event")
+        validation = self.validate_view_tab_add(student)
+        if validation == True:
+            event.add_attendee(student)
+            self.update_view_tab()
         else:
-            raise Exception("No Event Selected")
+            error_string = ''
+            for error in validation:
+                error_string += '\n' + error
+            tk.messagebox.showerror("showerror", "There were errors in data entry: " + error_string)
 
     def delete_student_view(self, event=None):
         indexes = self.event_tabs.view_tab.student_list.curselection()
         event = self.model.get_event(self.events_table.tree.focus())
-        attendees = event.attendees
-        if event:
+        validation = self.validate_view_tab_delete(indexes)
+        if validation == True:
+            attendees = event.attendees
             for idx in indexes:
                 event.delete_attendee(attendees[idx])
             self.update_view_tab()
+        else:
+            error_string = ''
+            for error in validation:
+                error_string += '\n' + error
+            tk.messagebox.showerror("showerror", "There were errors in data entry: " + error_string)
 
-    # Validation function
+    # Validation functions
     def validate_add_edit_tab(self, tab, selected_item=None):
         data_entries = [tab.id.var.get(), tab.name.var.get(), tab.date.var.get(), tab.nature.var.get()]
         errors = []
@@ -135,6 +142,28 @@ class EventController:
         errors = [error for error in errors if not isinstance(error, bool)]
         return errors if errors else True
 
+    def validate_view_tab_add(self, student):
+        errors = []
+        selected_item = self.events_table.tree.focus()
+        event = self.model.get_event(selected_item)
+        if not selected_item:
+            errors.append('\tNo Event is selected')
+        elif student in [s() for s in event.attendees if s]:
+            errors.append('\tStudent already attended event')
+
+        return errors if errors else True
+
+    def validate_view_tab_delete(self, idexes):
+        errors = []
+        selected_item = self.events_table.tree.focus()
+        event = self.model.get_event(selected_item)
+        if not selected_item:
+            errors.append('\tNo Event is selected')
+        elif not idexes:
+            errors.append('\tNo Student is selected')
+
+        return errors if errors else True
+
     # Updates and bindings
     # updates the treeview each time it is called. Call it anytime the model is changed.
     # It deletes all items from treeview and repopulates them
@@ -143,7 +172,22 @@ class EventController:
         self.events_table.load_events(self.model.events)
 
     def update_view_tab(self):
-        self.view_select()
+        values = [f'{s.first_name} {s.last_name}, {s.student_id}' for s in self.student_model.students]
+        self.event_tabs.view_tab.student_select.configure(values=values)
+        self.event_tabs.view_tab.student_select.var.set(value=values[0])
+        #self.view_select()
+        selected_item = self.events_table.tree.focus()
+        view_tab = self.event_tabs.view_tab
+        event = self.model.get_event(selected_item)
+        if not event:
+            item = self.events_table.tree.get_children()[0]
+            event = self.model.get_event(item)
+        attendee_names = [f'{student_ref().first_name} {student_ref().last_name}, {student_ref().student_id}'
+                          for student_ref in event.attendees if student_ref()]
+        view_tab.event_name.var.set(event.name)
+        view_tab.description.delete("0.0", 'end')
+        view_tab.description.insert('end', event.event_description)
+        view_tab.student_list.var.set(attendee_names)
 
     # All bindings and command configs to widgets are done here
     def widget_bindings(self):

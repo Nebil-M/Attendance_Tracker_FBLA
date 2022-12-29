@@ -1,5 +1,6 @@
 import pickle
 import datetime
+import weakref
 
 class Event:
     def __init__(self, event_id: int, name: str, date: str, nature: str, event_description: str):
@@ -10,13 +11,17 @@ class Event:
         self.nature = nature
         self.attendees = []
 
+    # Using weakreferences to store attendees so that they are deleted when they are deleted from studentmanager list
+    # one can call the weakrefernce to access the object by adding a () at the end of the weakreference
     def add_attendee(self, attendee):
-        self.attendees.append(attendee)
+        attendee_ref = weakref.ref(attendee)
+        self.attendees.append(attendee_ref)
         attendee.add_points(1)
 
-    def delete_attendee(self, remove_attendee):
-        self.attendees = [attendee for attendee in self.attendees if attendee != remove_attendee]
-        remove_attendee.points -= 1 if remove_attendee.points > 0 else 0
+    def delete_attendee(self, remove_attendee_ref):
+        attendee = remove_attendee_ref()
+        self.attendees.remove(remove_attendee_ref)
+        attendee.points -= 1 if attendee.points > 0 else 0
 
     def __str__(self):
         return self.name
@@ -68,6 +73,8 @@ class EventManager:
 
     # Validation Methods
     def validate_id(self, id, event=None):
+        if id == "ID":
+            return "The Event ID must be filled out"
         try:
             id = int(id)
         except ValueError:
@@ -85,6 +92,9 @@ class EventManager:
         return True
 
     def validate_event_name(self, name):
+        if name == "Event Name":
+            return "The Event Name must be filled out"
+
         if not name.replace(' ', '').isalpha():
             return '\tThe Event name may only include letters and spaces.'
 
@@ -102,14 +112,5 @@ class EventManager:
         if not nature.replace(' ', '').isalpha():
             return '\tThe Nature may only include letters and spaces.'
         return True
-
-    def validate_id_other_events(self, event):
-        if not self.validate_id(event.id):
-            other_events_id = [e.event_id for e in self.events if e.event_id != event.event_id]
-            if id in other_events_id:
-                return "This Event ID is already assigned to another event."
-        else:
-            return self.validate_id(event.id)
-
 
 event_manager = EventManager()
