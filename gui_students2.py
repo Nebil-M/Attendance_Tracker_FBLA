@@ -48,7 +48,7 @@ class StudentController:
             error_string = ''
             for error in validation:
                 error_string += '\n' + error
-            tk.messagebox.showerror("Error", "The following data entry errors occured:" + error_string)
+            tk.messagebox.showerror("Error", "The following data entry errors occurred:" + error_string)
 
     def edit_student(self):
         # Gets the selected student's ID
@@ -80,25 +80,33 @@ class StudentController:
             error_string = ''
             for error in validation:
                 error_string += '\n' + error
-            tk.messagebox.showerror("Error", "The following data entry errors occured:" + error_string)
+            tk.messagebox.showerror("Error", "The following data entry errors occurred:" + error_string)
 
     def remove_student(self):
         # Gets the selected student's ID
         selection = self.students_table.tree.focus()
 
         edit_tab = self.student_tabs.edit_tab
+
         # Checks whether the selection is empty or not
         if selection:
-            # Removes the student
-            student_manager.remove_student(int(selection))
+            student = student_manager.get_student(int(selection))
+            text = f"ID: {str(student.student_id)}\nGrade level: {str(student.grade_level)}\nFirst name: {student.first_name}\nLast name: {student.last_name}\nLetter grade: {student.letter_grade}\nPoints: {student.points}"
+            confirmation = tk.messagebox.askokcancel("Delete student?",
+                                                     message="Are you sure you want to delete this student?",
+                                                     detail=text)
 
-            # Saves the data into the pkl file
-            # commented out for testing
-            # student_manager.save_data()
-            # Updates the treeview with the new data
-            self.update_students_table()
-            # Cleans out the entries once the data is updated
-            self.clear_entries(self.student_tabs.edit_tab)
+            if confirmation:
+                # Removes the student
+                student_manager.remove_student(int(selection))
+
+                # Saves the data into the pkl file
+                # commented out for testing
+                # student_manager.save_data()
+                # Updates the treeview with the new data
+                self.update_students_table()
+                # Cleans out the entries once the data is updated
+                self.clear_entries(self.student_tabs.edit_tab)
 
     # Data validation!
     def validate_data(self, tab, selection=None):
@@ -107,7 +115,8 @@ class StudentController:
         if tab not in tabs:
             raise Exception(f"Parameter tab should be one of the following values: {tabs}")
 
-        data_entries = [tab.student_id.var.get(), tab.grade_level.var.get(), tab.first_name.var.get(), tab.last_name.var.get(), tab.letter_grade.var.get()]
+        data_entries = [tab.student_id.var.get(), tab.grade_level.var.get(), tab.first_name.var.get(),
+                        tab.last_name.var.get(), tab.letter_grade.var.get()]
         errors = []
         student = None
 
@@ -126,7 +135,6 @@ class StudentController:
         errors = [error for error in errors if not isinstance(error, bool)]
 
         return errors if errors else True
-
 
     # Clears or resets the entries
     def clear_entries(self, tab):
@@ -357,7 +365,8 @@ class EditTab(ct.CTkFrame):
         # Grids the widgets and makes the labels
         pad = (0, 10)
         ct.CTkLabel(tab, text="Edit student details:").grid(row=0, column=0, sticky="W", pady=10)
-        ct.CTkLabel(tab, text="Please double click on the left to select a student.").grid(row=1, column=0, sticky="W", columnspan=2)
+        ct.CTkLabel(tab, text="Please double click on the left to select a student.").grid(row=1, column=0, sticky="W",
+                                                                                           columnspan=2)
         self.label_student_selected.grid(row=2, column=0, sticky="W", pady=(10, 0))
         ct.CTkLabel(tab, text="Student ID").grid(row=4, column=0, sticky="W", pady=(10, 0))
         self.student_id.grid(row=5, column=0, sticky="W", pady=pad)
@@ -396,11 +405,6 @@ if __name__ == "__main__":
     window.title("Attendance Tracker")
     ct.set_appearance_mode("dark")
     ct.set_default_color_theme("dark-blue")
-
-    # don't change the variable name tabs or move it around or else the program will explode.
-    # tabs = Tabs(window)
-
-    # students_table = StudentsTable(window)
 
     s = StudentsFrame(window)
     s.grid(row=0, column=0, sticky='NEWS')
