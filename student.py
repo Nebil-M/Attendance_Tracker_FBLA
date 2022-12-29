@@ -107,7 +107,7 @@ class StudentManager:
         ...
 
     def validate_id(self, student_id: str, student=None):
-        if student_id == "Student ID":
+        if student_id == "Student ID" or student_id == "":
             return "\tThe Student ID must be filled out."
 
         try:
@@ -129,7 +129,7 @@ class StudentManager:
         return True
 
     def validate_first_name(self, first_name):
-        if first_name == "First name":
+        if first_name == "First name" or first_name == "":
             return "\tThe student's first name must be filled out."
 
         # Gets rid of spaces and hyphens, which means the name may have spaces or hyphens.
@@ -141,7 +141,7 @@ class StudentManager:
         return True
 
     def validate_last_name(self, last_name):
-        if last_name == "Last name":
+        if last_name == "Last name" or last_name == "":
             return "\tThe student's last name must be filled out."
 
         # Gets rid of spaces and hyphens, which means the name may have spaces or hyphens.
