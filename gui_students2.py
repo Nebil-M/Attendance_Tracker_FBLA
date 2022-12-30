@@ -74,8 +74,8 @@ class StudentController:
             # student_manager.save_data()
             # Updates the treeview with the new data
             self.update_students_table()
-            # Cleans out the entries once the data is saved
-            self.clear_entries(self.student_tabs.edit_tab)
+            # Re-selects the student
+            self.students_table.tree.focus(str(student.student_id))
         else:
             error_string = ''
             for error in validation:
