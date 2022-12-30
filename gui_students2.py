@@ -196,7 +196,7 @@ class StudentsFrame(ct.CTkFrame):
 
         # Makes it resizeable
         self.rowconfigure(0, weight=1)
-        self.columnconfigure(0, weight=1)
+        self.columnconfigure(0, weight=10)
         self.columnconfigure(1, weight=1)
 
         self.table = StudentsTable(self)
@@ -204,7 +204,7 @@ class StudentsFrame(ct.CTkFrame):
 
         # The tabs
         self.student_tabs = Tabs(self)
-        self.student_tabs.grid(row=0, column=1, sticky='NES')
+        self.student_tabs.grid(row=0, column=1, sticky='NEWS')
 
         # Fixing the bug with placeholders for all entries that is a child of this widget.
         place_holder_bind_all(self)
@@ -213,11 +213,8 @@ class StudentsFrame(ct.CTkFrame):
 class StudentsTable(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        top = self.winfo_toplevel()
-        top.rowconfigure(0, weight=1)
-        top.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
-        self.columnconfigure(0, weight=1, minsize=200)
+        self.columnconfigure(0, weight=1)
 
         # Treeview styling
         style = ttk.Style()
@@ -246,7 +243,10 @@ class StudentsTable(ct.CTkFrame):
         # Styling for the treeview
         for column in columns:
             self.tree.heading(column, text=column)
-            self.tree.column(column, width=200, anchor='center', minwidth=200)
+            if column == "Grade Level":
+                self.tree.column(column, width=70, anchor='center', minwidth=80)
+            else:
+                self.tree.column(column, width=180, anchor='center', minwidth=200)
 
     # Do NOT use this function to add students. This only affects the treeview, not the actual data. Only use for testing.
     def add_student(self, student):
@@ -255,12 +255,20 @@ class StudentsTable(ct.CTkFrame):
         self.tree.insert("", 'end', student_id, text=student_id, values=values, tags=("ttk", "student"))
 
     def load_students(self, students):
+        # This part allows the students to be sorted
+        list_of_students = []
         for student in students:
             values = (
                 student.student_id, student.first_name, student.last_name, student.letter_grade, student.grade_level,
                 student.points)
-            student_id = str(student.student_id)
-            self.tree.insert("", 'end', student_id, text=student_id, values=values, tags=("ttk", "student"))
+            list_of_students.append(values)
+        # Sorts the list by grade level, then by number of points
+        list_of_students.sort(reverse=True, key=lambda x: (x[4], x[5]))
+
+        # Adds the students into the treeview
+        for student in list_of_students:
+            student_id = str(student[0])
+            self.tree.insert("", 'end', student_id, text=student_id, values=student, tags=("ttk", "student"))
         self.tree.tag_configure("ttk", font=('Helvetica', 20, 'bold'), foreground='gray74', background='#343638')
 
 
@@ -268,9 +276,12 @@ class Tabs(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
         # Initializes the tabs
         self.tabview = ct.CTkTabview(self)
-        self.tabview.grid(row=0, column=1, sticky="NEWS")
+        self.tabview.grid(row=0, column=0, sticky="NEWS")
 
         # Creates the tab frames
         self.tabview.add("Add")
@@ -416,6 +427,6 @@ if __name__ == "__main__":
     window.columnconfigure(1, weight=1)
 
     # Sets the minimum size of the window
-    window.minsize(875, 575)
+    # window.minsize(875, 575)
 
     window.mainloop()
