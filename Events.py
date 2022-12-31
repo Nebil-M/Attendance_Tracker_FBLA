@@ -74,7 +74,7 @@ class EventManager:
     # Validation Methods
     def validate_id(self, id, event=None):
         if id == "ID":
-            return "The Event ID must be filled out"
+            return "\tThe Event ID must be filled out."
         try:
             id = int(id)
         except ValueError:
@@ -93,7 +93,7 @@ class EventManager:
 
     def validate_event_name(self, name):
         if name == "Event Name":
-            return "The Event Name must be filled out"
+            return "\tThe Event name must be filled out."
 
         if not name.replace(' ', '').isalpha():
             return '\tThe Event name may only include letters and spaces.'
@@ -105,7 +105,9 @@ class EventManager:
             datetime.datetime.strptime(date, '%m/%d/%Y')
         except ValueError:
             return '\tThe Date must be in the MM/DD/YYYY format.'
-
+        month, day, year = date.split('/')
+        if len(month) != 2 or len(day) != 2:
+            return '\tThe Date must be in the MM/DD/YYYY format.'
         return True
 
     def validate_nature(self, nature):

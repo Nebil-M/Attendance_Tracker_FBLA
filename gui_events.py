@@ -34,19 +34,20 @@ class EventController:
                                  add_tab.nature.var.get(), add_tab.description.get('0.0', 'end'))
             self.update_events_table()
         else:
-            error_string = ''
-            for error in validation:
-                error_string += '\n' + error
-            tk.messagebox.showerror("showerror", "There were errors in data entry: " + error_string)
+            self.error_show(validation)
 
     # deletes an event in model, deletes and repopulates items in view update_events_table
     def delete_event(self, event=None):
+        add_tab = self.event_tabs.add_tab
         item = self.events_table.tree.focus()
-        if item:
-            self.model.delete_event(item)
+        validation = self.validate_add_edit_tab(add_tab, item, True)
+        if validation == True:
+            # You can select Multiple events to delete
+            for itm in self.events_table.tree.selection():
+                self.model.delete_event(itm)
             self.update_events_table()
         else:
-            raise Exception("No Event selected")
+            self.error_show(validation)
 
     # Edits a selected event and updates treeview
     def edit_event(self, event=None):
@@ -61,11 +62,10 @@ class EventController:
             event.nature = edit_tab.nature.var.get()
             event.event_description = edit_tab.description.get('0.0', 'end')
             self.update_events_table()
+            self.events_table.tree.focus(event.event_id)
+            self.events_table.tree.selection_set(event.event_id)
         else:
-            error_string = ''
-            for error in validation:
-                error_string += '\n' + error
-            tk.messagebox.showerror("showerror", "There were errors in data entry: " + error_string)
+            self.error_show(validation)
 
     # callback to when a row is double clicked, populates the edit tab entries.
     def edit_select_fill(self, event=None):
@@ -90,13 +90,20 @@ class EventController:
                 attendee_names = [f'{student_ref().first_name} {student_ref().last_name}, {student_ref().student_id}'
                                   for student_ref in event.attendees if student_ref()]
                 view_tab.event_name.var.set(event.name)
+                view_tab.description.configure(state="normal")
                 view_tab.description.delete("0.0", 'end')
                 view_tab.description.insert('end', event.event_description)
+                view_tab.description.configure(state="disabled")
+
                 view_tab.student_list.var.set(attendee_names)
 
     def add_student_view(self, event=None):
+        typed = student_id = self.event_tabs.view_tab.student_select.var.get()
         selected_item = self.events_table.tree.focus()
-        student_id = self.event_tabs.view_tab.student_select.var.get().split()[2]
+        if typed.isdigit() and len(typed) == 8:
+            student_id = self.event_tabs.view_tab.student_select.var.get()
+        else:
+            student_id = self.event_tabs.view_tab.student_select.var.get().split()[2]
         student = self.student_model.get_student(int(student_id))
         event = self.model.get_event(selected_item)
         validation = self.validate_view_tab_add(student)
@@ -104,10 +111,7 @@ class EventController:
             event.add_attendee(student)
             self.update_view_tab()
         else:
-            error_string = ''
-            for error in validation:
-                error_string += '\n' + error
-            tk.messagebox.showerror("showerror", "There were errors in data entry: " + error_string)
+            self.error_show(validation)
 
     def delete_student_view(self, event=None):
         indexes = self.event_tabs.view_tab.student_list.curselection()
@@ -119,13 +123,10 @@ class EventController:
                 event.delete_attendee(attendees[idx])
             self.update_view_tab()
         else:
-            error_string = ''
-            for error in validation:
-                error_string += '\n' + error
-            tk.messagebox.showerror("showerror", "There were errors in data entry: " + error_string)
+            self.error_show(validation)
 
     # Validation functions
-    def validate_add_edit_tab(self, tab, selected_item=None):
+    def validate_add_edit_tab(self, tab, selected_item=None, delete=False):
         data_entries = [tab.id.var.get(), tab.name.var.get(), tab.date.var.get(), tab.nature.var.get()]
         errors = []
         event = None
@@ -133,11 +134,14 @@ class EventController:
             event = self.model.get_event(selected_item)
         elif tab == self.event_tabs.edit_tab:
             errors.append('\tNo Event is selected')
-
-        errors.append(self.model.validate_id(data_entries[0], event))
-        errors.append(self.model.validate_event_name(data_entries[1]))
-        errors.append(self.model.validate_date(data_entries[2]))
-        errors.append(self.model.validate_nature(data_entries[3]))
+        if delete:
+            if not self.events_table.tree.selection() or not selected_item:
+                errors.append('\tNo Event is selected')
+        else:
+            errors.append(self.model.validate_id(data_entries[0], event))
+            errors.append(self.model.validate_event_name(data_entries[1]))
+            errors.append(self.model.validate_date(data_entries[2]))
+            errors.append(self.model.validate_nature(data_entries[3]))
 
         errors = [error for error in errors if not isinstance(error, bool)]
         return errors if errors else True
@@ -164,6 +168,12 @@ class EventController:
 
         return errors if errors else True
 
+    def error_show(self, validation):
+        error_string = ''
+        for error in validation:
+            error_string += '\n' + error
+        tk.messagebox.showerror("Error", "The following data entry errors occurred:" + error_string)
+
     # Updates and bindings
     # updates the treeview each time it is called. Call it anytime the model is changed.
     # It deletes all items from treeview and repopulates them
@@ -175,18 +185,25 @@ class EventController:
         values = [f'{s.first_name} {s.last_name}, {s.student_id}' for s in self.student_model.students]
         self.event_tabs.view_tab.student_select.configure(values=values)
         self.event_tabs.view_tab.student_select.var.set(value=values[0])
-        #self.view_select()
+
+        # Custom view_select
         selected_item = self.events_table.tree.focus()
         view_tab = self.event_tabs.view_tab
         event = self.model.get_event(selected_item)
         if not event:
             item = self.events_table.tree.get_children()[0]
             event = self.model.get_event(item)
+            self.events_table.tree.focus(item)
+            self.events_table.tree.selection_set(item)
         attendee_names = [f'{student_ref().first_name} {student_ref().last_name}, {student_ref().student_id}'
                           for student_ref in event.attendees if student_ref()]
         view_tab.event_name.var.set(event.name)
+
+        view_tab.description.configure(state="normal")
         view_tab.description.delete("0.0", 'end')
         view_tab.description.insert('end', event.event_description)
+        view_tab.description.configure(state="disable")
+
         view_tab.student_list.var.set(attendee_names)
 
     # All bindings and command configs to widgets are done here
@@ -244,7 +261,7 @@ class EventsTable(ct.CTkFrame):
                     font=('Helvetica', 20, 'bold'), fieldbackground='#343638')
 
         # Initializing treeview, and scroller
-        self.tree = ttk.Treeview(self)
+        self.tree = ttk.Treeview(self) # decide later whether to use selectmode="browse" or not
         self.scroll_y = ct.CTkScrollbar(self, orientation="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=self.scroll_y.set)
 
