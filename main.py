@@ -2,6 +2,7 @@ import customtkinter
 import customtkinter as ct
 from gui_events import *
 from gui_students import *
+from gui_report import *
 import gui_students2 as s2
 
 
@@ -148,6 +149,7 @@ class NavigationFrameTop(customtkinter.CTkFrame):
         self.EC.update_events_table()
         # self.EC.update_view_tab()
 
+
 # Nav bar at the top, Default view. Access by changing 'NavigationFrameTop' to 'NavigationFrame' in the App class.
 class NavigationFrame(customtkinter.CTkFrame):
     def __init__(self, *args, **kwargs):
@@ -226,7 +228,7 @@ class NavigationFrame(customtkinter.CTkFrame):
         self.EC = EventController(self.third_frame)
 
         # create fourth frame
-        self.fourth_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.fourth_frame = ReportFrame(self)
 
         # create fifth Frame
         self.fifth_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")

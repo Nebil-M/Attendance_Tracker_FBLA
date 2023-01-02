@@ -67,16 +67,20 @@ class StudentManager:
         for student in self.students:
             student.points = 0
 
-    # Student With top points
+    def get_grade_students(self, grade_level: int):
+        students = filter(lambda student: student.grade_level == grade_level, self.students)
+        sorted_students = list(sorted(students, key=lambda student: student.points))
+        return sorted_students
+
     def get_winner(self):
         student_with_most_points = max(self.students, key=lambda student: student.points)
         return student_with_most_points
 
     def get_random_winners(self):
-        grade_9_students = [student for student in self.students if student.grade_level == 9 and student.points != 0]
-        grade_10_students = [student for student in self.students if student.grade_level == 10 and student.points != 0]
-        grade_11_students = [student for student in self.students if student.grade_level == 11 and student.points != 0]
-        grade_12_students = [student for student in self.students if student.grade_level == 12 and student.points != 0]
+        grade_9_students = self.get_grade_students(9)
+        grade_10_students = self.get_grade_students(10)
+        grade_11_students = self.get_grade_students(11)
+        grade_12_students = self.get_grade_students(12)
 
         grade_9_winner = random.choice(grade_9_students) if grade_9_students else None
         grade_10_winner = random.choice(grade_10_students) if grade_10_students else None
@@ -99,12 +103,6 @@ class StudentManager:
     def save_data(self, file_name='students'):
         with open(f'project_data/students/{file_name}.pkl', 'wb') as data_output:
             pickle.dump(self.students, data_output, pickle.HIGHEST_PROTOCOL)
-
-    def end_quarter(self):
-        ...
-
-    def generate_report(self):
-        ...
 
     def validate_id(self, student_id: str, student=None):
         if student_id == "Student ID" or student_id == "":
