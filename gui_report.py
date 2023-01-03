@@ -13,18 +13,22 @@ class ReportController:
 class ReportFrame(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.name = ct.CTkLabel(self, text='\nName', font=('arial', 30))
+        self.name.grid(row=0, column=0, sticky='NEWS')
+
         self.display = Display(self)
-        self.display.grid(row=0, column=0, sticky='NEWS', padx=20, pady=20)
+        self.display.grid(row=1, column=0, sticky='NEWS', padx=20, pady=20)
 
         self.prize_frame = PrizeFrame(self)
-        self.prize_frame.grid(row=0, column=1, sticky='NEWS', padx=20, pady=20, rowspan=2)
+        self.prize_frame.grid(row=1, column=1, sticky='NEWS', padx=20, pady=20, rowspan=2)
 
         self.report_toggle = ReportToggle(self)
-        self.report_toggle.grid(row=1, column=0, sticky='NEWS', padx=20, pady=20)
+        self.report_toggle.grid(row=2, column=0, sticky='NEWS', padx=20, pady=20)
 
         limited_weight_cells(self)
 
         self.manual_weights()
+
     def manual_weights(self):
         # Table scrolls
         self.prize_frame.prize_table.rowconfigure(2, weight=0)
@@ -34,11 +38,23 @@ class ReportFrame(ct.CTkFrame):
         self.display.winner_display.rowconfigure(0, weight=0)
         self.display.winner_display.rowconfigure(2, weight=0)
 
+        # prizes label and buttons
+        self.prize_frame.rowconfigure(0, weight=0)
+        self.prize_frame.rowconfigure(3, weight=0)
+        self.prize_frame.rowconfigure(4, weight=0)
+        self.prize_frame.rowconfigure(5, weight=0)
+
         # Student list displays
         self.display.student_list.rowconfigure(0, weight=0)
 
+        # Create button
+        self.display.rowconfigure(1, weight=0)
+
         # Toggle
-        self.rowconfigure(1, weight=0)
+        self.rowconfigure(2, weight=0)
+
+        # Name label
+        self.rowconfigure(0, weight=0)
 
 
 class PrizeFrame(ct.CTkFrame):
@@ -46,7 +62,7 @@ class PrizeFrame(ct.CTkFrame):
         super().__init__(*args, **kwargs)
         self.configure(border_width=5, border_color='black')
         # Label
-        self.label = ct.CTkLabel(self, text='Prizes', font=('arial', 50))
+        self.label = ct.CTkLabel(self, text='Prizes', font=('arial', 30))
         self.label.grid(row=0, column=0, sticky='NEWS', padx=20, pady=20)
         # Table
         self.prize_table = PrizeTable(self)
@@ -55,18 +71,18 @@ class PrizeFrame(ct.CTkFrame):
         # Buttons
         font = ('arial', 15)
         corner_radius = 10
-        padx = 30
-        pady = 5
+        pad_x = 30
+        pad_y = 5
         height = 40
         self.add_button = ct.CTkButton(self, text='Add prize', font=font, corner_radius=corner_radius, height=height)
-        self.add_button.grid(row=3, column=0, sticky='NEWS', padx=padx, pady=pady)
+        self.add_button.grid(row=3, column=0, sticky='NEWS', padx=pad_x, pady=pad_y)
 
         self.delete_button = ct.CTkButton(self, text='Delete prize', font=font, corner_radius=corner_radius,
                                           height=height)
-        self.delete_button.grid(row=4, column=0, sticky='NEWS', padx=padx, pady=pady)
+        self.delete_button.grid(row=4, column=0, sticky='NEWS', padx=pad_x, pady=pad_y)
 
         self.edit_button = ct.CTkButton(self, text='Edit prize', font=font, corner_radius=corner_radius, height=height)
-        self.edit_button.grid(row=5, column=0, sticky='NEWS', padx=padx, pady=(pady, pady + 20))
+        self.edit_button.grid(row=5, column=0, sticky='NEWS', padx=pad_x, pady=(pad_y, pad_y + 20))
 
 
 class PrizeTable(ct.CTkFrame):

@@ -87,8 +87,8 @@ class EventController:
         event = self.model.get_event(selected_item)
         if event:
             if view_tab == self.event_tabs.winfo_children()[-1]:
-                attendee_names = [f'{student_ref().first_name} {student_ref().last_name}, {student_ref().student_id}'
-                                  for student_ref in event.attendees if student_ref()]
+                attendee_names = [f'{attendee.first_name} {attendee.last_name}, {attendee.student_id}'
+                                  for attendee in event.attendees]
                 view_tab.event_name.var.set(event.name)
                 view_tab.description.configure(state="normal")
                 view_tab.description.delete("0.0", 'end')
@@ -98,7 +98,7 @@ class EventController:
                 view_tab.student_list.var.set(attendee_names)
 
     def add_student_view(self, event=None):
-        typed = student_id = self.event_tabs.view_tab.student_select.var.get()
+        typed = self.event_tabs.view_tab.student_select.var.get()
         selected_item = self.events_table.tree.focus()
         if typed.isdigit() and len(typed) == 8:
             student_id = self.event_tabs.view_tab.student_select.var.get()
@@ -120,7 +120,8 @@ class EventController:
         if validation == True:
             attendees = event.attendees
             for idx in indexes:
-                event.delete_attendee(attendees[idx])
+                s_id = attendees[idx].student_id
+                event.delete_attendee(self.student_model.get_student(s_id))
             self.update_view_tab()
         else:
             self.error_show(validation)
@@ -152,7 +153,7 @@ class EventController:
         event = self.model.get_event(selected_item)
         if not selected_item:
             errors.append('\tNo Event is selected')
-        elif student in [s() for s in event.attendees if s]:
+        elif student.student_id in [s.student_id for s in event.attendees]:
             errors.append('\tStudent already attended event')
 
         return errors if errors else True
@@ -182,6 +183,11 @@ class EventController:
         self.events_table.load_events(self.model.events)
 
     def update_view_tab(self):
+        # delete any non existing students from any attendee lists
+        real_ids = [student.student_id for student in self.student_model.students]
+        for event in event_manager.events:
+            event.attendees = [attendee for attendee in event.attendees if attendee.student_id in real_ids]
+
         values = [f'{s.first_name} {s.last_name}, {s.student_id}' for s in self.student_model.students]
         self.event_tabs.view_tab.student_select.configure(values=values)
         self.event_tabs.view_tab.student_select.var.set(value=values[0])
@@ -195,8 +201,8 @@ class EventController:
             event = self.model.get_event(item)
             self.events_table.tree.focus(item)
             self.events_table.tree.selection_set(item)
-        attendee_names = [f'{student_ref().first_name} {student_ref().last_name}, {student_ref().student_id}'
-                          for student_ref in event.attendees if student_ref()]
+        attendee_names = [f'{attendee.first_name} {attendee.last_name}, {attendee.student_id}'
+                          for attendee in event.attendees]
         view_tab.event_name.var.set(event.name)
 
         view_tab.description.configure(state="normal")

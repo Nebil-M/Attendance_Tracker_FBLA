@@ -65,11 +65,30 @@ class Report:
 class ReportManager:
     def __init__(self):
         self.reports = []
+        self.idx = 0
+        self.current_report = None
 
     def create_report(self):
         report = Report()
         self.reports.append(report)
         return report
+
+    def current(self):
+        reports = [self.reports.index(report) for report in self.reports]
+        if self.idx in reports:
+            return self.reports[self.idx]
+
+    def next(self):
+        reports = [self.reports.index(report) for report in self.reports]
+        if self.idx + 1 in reports:
+            self.idx += 1
+            return self.current()
+
+    def prev(self):
+        reports = [self.reports.index(report) for report in self.reports]
+        if self.idx - 1 in reports:
+            self.idx -= 1
+            return self.current()
 
     def load_data(self, file_name='Report'):
         with open(f'project_data/Report/Reports/{file_name}.pkl', 'rb') as data_input:
@@ -82,5 +101,3 @@ class ReportManager:
 
 prize_manager = PrizeManager()
 report_manager = ReportManager()
-
-
