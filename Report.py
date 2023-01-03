@@ -1,6 +1,6 @@
 import pickle
 from student import student_manager
-
+import copy
 
 class Prize:
     def __init__(self, name, required_points: int):
@@ -54,23 +54,29 @@ class Report:
         self.top_winner = student_manager.get_winner()
         self.winners = self.random_winners + (self.top_winner,)
 
-        self.ninth_graders = student_manager.get_grade_students(9)
-        self.tenth_graders = student_manager.get_grade_students(10)
-        self.eleventh_graders = student_manager.get_grade_students(11)
-        self.twelfth_graders = student_manager.get_grade_students(12)
+        self.ninth_graders = map(copy.copy, student_manager.get_grade_students(9))
+        self.tenth_graders = map(copy.copy, student_manager.get_grade_students(10))
+        self.eleventh_graders = map(copy.copy, student_manager.get_grade_students(11))
+        self.twelfth_graders = map(copy.copy, student_manager.get_grade_students(12))
 
         self.students_with_prize = [(student, prize_manager.award_prize(student)) for student in self.winners]
+
+    def __repr__(self):
+        return f'Report: {self.name}'
+
+    def __str__(self):
+        return f'A Report Object with the following name: {self.name}'
 
 
 class ReportManager:
     def __init__(self):
         self.reports = []
+        self.load_data()
         self.idx = 0
-        self.current_report = None
 
-    def create_report(self):
-        report = Report()
-        self.reports.append(report)
+    def create_report(self, name: str = "NoName"):
+        report = Report(name)
+        self.reports.insert(0, report)
         return report
 
     def current(self):

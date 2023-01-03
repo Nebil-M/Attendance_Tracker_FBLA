@@ -229,6 +229,7 @@ class NavigationFrame(customtkinter.CTkFrame):
 
         # create fourth frame
         self.fourth_frame = ReportFrame(self)
+        self.RC = ReportController(self.fourth_frame)
 
         # create fifth Frame
         self.fifth_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
@@ -288,8 +289,12 @@ class NavigationFrame(customtkinter.CTkFrame):
     # function that must be syncronized across frames. run whenever a frame is changed
     def cross_frame_func(self):
         self.SC.update_students_table()
+
         self.EC.update_events_table()
         self.EC.update_view_tab()
+
+        self.RC.update_table()
+        self.RC.update_display()
 
 if __name__ == "__main__":
     app = App()

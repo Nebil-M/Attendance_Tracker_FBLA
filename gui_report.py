@@ -1,19 +1,103 @@
 import customtkinter as ct
 from tkinter import ttk
 import tkinter as tk
+from student import student_manager
+from Events import event_manager
 from Report import report_manager, prize_manager
 from func_utils import limited_weight_cells, place_holder_bind_all
 
 
 class ReportController:
     def __init__(self, view):
+        # view = ReportFrame(root)
         self.view = view
+
+        # Vars
+        self.prize_frame = self.view.prize_frame
+        self.table = self.view.prize_frame.prize_table
+        self.display = self.view.display
+        self.student_list = self.display.student_list
+        self.winner_display = self.display.winner_display
+
+        # Initial function
+        self.update_table()
+        self.update_display()
+        self.bindings()
+
+    # Prize mechanics
+    def add_prize(self):
+        ...
+
+    def delete_prize(self):
+        ...
+
+    def edit_prize(self):
+        ...
+
+    def right_arrow(self):
+        ...
+
+    def left_arrow(self):
+        ...
+
+    def end_quarter(self):
+        report = report_manager.create_report('')
+        report_manager.idx = 0
+        self.update_display()
+
+    # Update Events
+    def update_table(self):
+        self.table.tree.delete(*self.table.tree.get_children())
+        self.table.load(prize_manager.prizes)
+
+    def update_display(self):
+        # points per student
+        current_report = report_manager.current()
+        name_point_9 = [f'{student.first_name} {student.last_name}: {student.points}' for student in
+                        current_report.ninth_graders]
+        name_point_10 = [f'{student.first_name} {student.last_name}: {student.points}' for student in
+                         current_report.tenth_graders]
+        name_point_11 = [f'{student.first_name} {student.last_name}: {student.points}' for student in
+                         current_report.eleventh_graders]
+        name_point_12 = [f'{student.first_name} {student.last_name}: {student.points}' for student in
+                         current_report.twelfth_graders]
+        self.student_list.ninth_grade.var.set(name_point_9)
+        self.student_list.tenth_grade.var.set(name_point_10)
+        self.student_list.eleventh_grade.var.set(name_point_11)
+        self.student_list.twelfth_grade.var.set(name_point_12)
+
+        self.view.name.configure(text=current_report.name)
+        # winners
+        top_winner = current_report.top_winner
+        top_winner_string = f'{top_winner.first_name} {top_winner.last_name}:   {prize_manager.award_prize(top_winner)}'
+        self.display.winner_display.top_winner.delete("0.0", 'end')
+        self.display.winner_display.top_winner.insert('0.0', top_winner_string)
+
+        # random winners
+        random_winners = current_report.random_winners
+        random_winners_list = [(f'{student.first_name} {student.last_name}:', prize_manager.award_prize(student).name)
+                               for student in random_winners]
+        random_winners_string = ''
+        longest = max(random_winners_list, key=lambda st: len(st[0]))
+        for s in random_winners_list:
+            l = len(longest[0])
+            m = l - len(s[0])
+            sp = l + m
+            white_s = (' ' * (sp-12))
+            random_winners_string += s[0] + white_s + s[1] + '\n'
+        # print(random_winners_string)
+        self.display.winner_display.random_winners.delete("0.0", 'end')
+        self.display.winner_display.random_winners.insert('0.0', random_winners_string)
+
+    # all bindings and commands
+    def bindings(self):
+        self.view.report_toggle.end_quarter.configure(command=self.end_quarter)
 
 
 class ReportFrame(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = ct.CTkLabel(self, text='\nName', font=('arial', 30))
+        self.name = ct.CTkLabel(self, text='\nName', font=('arial', 20))
         self.name.grid(row=0, column=0, sticky='NEWS')
 
         self.display = Display(self)
@@ -188,11 +272,11 @@ class StudentList(ct.CTkFrame):
         self.ninth_grade.var = tk.StringVar(value=[])
         self.ninth_grade.configure(listvariable=self.ninth_grade.var)
         self.tenth_grade.var = tk.StringVar(value=[])
-        self.tenth_grade.configure(listvariable=self.ninth_grade.var)
+        self.tenth_grade.configure(listvariable=self.tenth_grade.var)
         self.eleventh_grade.var = tk.StringVar(value=[])
-        self.eleventh_grade.configure(listvariable=self.ninth_grade.var)
+        self.eleventh_grade.configure(listvariable=self.eleventh_grade.var)
         self.twelfth_grade.var = tk.StringVar(value=[])
-        self.twelfth_grade.configure(listvariable=self.ninth_grade.var)
+        self.twelfth_grade.configure(listvariable=self.twelfth_grade.var)
 
 
 class WinnersDisplay(ct.CTkFrame):
@@ -210,8 +294,8 @@ class WinnersDisplay(ct.CTkFrame):
 
         ct.CTkLabel(self, text='Random winners', font=('arial', font)).grid(row=2, column=0, sticky=sticky, padx=pad_x,
                                                                             pady=pad_y)
-        self.random_winner = ct.CTkTextbox(self)
-        self.random_winner.grid(row=3, column=0, sticky='NEWS', padx=10, pady=10)
+        self.random_winners = ct.CTkTextbox(self, font=('Consolas', 12))
+        self.random_winners.grid(row=3, column=0, sticky='NEWS', padx=10, pady=10)
 
 
 class ReportToggle(ct.CTkFrame):
@@ -236,6 +320,7 @@ if __name__ == '__main__':
 
     w = ReportFrame(root)
     w.grid(row=0, column=0, sticky='NEWS')
+    ReportController(w)
     root.rowconfigure(0, weight=1)
     root.columnconfigure(0, weight=1)
     root.mainloop()
