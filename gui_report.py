@@ -35,13 +35,20 @@ class ReportController:
         ...
 
     def right_arrow(self):
-        ...
+        report_manager.prev()
+        self.update_display()
 
     def left_arrow(self):
-        ...
+        report_manager.next()
+        self.update_display()
 
     def end_quarter(self):
-        report = report_manager.create_report('')
+        dialog = ct.CTkInputDialog(text="Name of report: ", title="Test")
+        report_manager.create_report(dialog.get_input())
+        report_manager.idx = 0
+        self.update_display()
+
+    def printt(self):
         report_manager.idx = 0
         self.update_display()
 
@@ -53,51 +60,56 @@ class ReportController:
     def update_display(self):
         # points per student
         current_report = report_manager.current()
-        name_point_9 = [f'{student.first_name} {student.last_name}: {student.points}' for student in
-                        current_report.ninth_graders]
-        name_point_10 = [f'{student.first_name} {student.last_name}: {student.points}' for student in
-                         current_report.tenth_graders]
-        name_point_11 = [f'{student.first_name} {student.last_name}: {student.points}' for student in
-                         current_report.eleventh_graders]
-        name_point_12 = [f'{student.first_name} {student.last_name}: {student.points}' for student in
-                         current_report.twelfth_graders]
-        self.student_list.ninth_grade.var.set(name_point_9)
-        self.student_list.tenth_grade.var.set(name_point_10)
-        self.student_list.eleventh_grade.var.set(name_point_11)
-        self.student_list.twelfth_grade.var.set(name_point_12)
+        if current_report:
+            name_point_9 = [f'{student.first_name} {student.last_name}: {student.points}' for student in
+                            current_report.ninth_graders]
+            name_point_10 = [f'{student.first_name} {student.last_name}: {student.points}' for student in
+                             current_report.tenth_graders]
+            name_point_11 = [f'{student.first_name} {student.last_name}: {student.points}' for student in
+                             current_report.eleventh_graders]
+            name_point_12 = [f'{student.first_name} {student.last_name}: {student.points}' for student in
+                             current_report.twelfth_graders]
+            self.student_list.ninth_grade.var.set(name_point_9)
+            self.student_list.tenth_grade.var.set(name_point_10)
+            self.student_list.eleventh_grade.var.set(name_point_11)
+            self.student_list.twelfth_grade.var.set(name_point_12)
 
-        self.view.name.configure(text=current_report.name)
-        # winners
-        top_winner = current_report.top_winner
-        top_winner_string = f'{top_winner.first_name} {top_winner.last_name}:   {prize_manager.award_prize(top_winner)}'
-        self.display.winner_display.top_winner.delete("0.0", 'end')
-        self.display.winner_display.top_winner.insert('0.0', top_winner_string)
+            self.view.name.configure(text=current_report.name)
+            # winners
+            top_winner = current_report.top_winner
+            top_winner_string = f'{top_winner.first_name} {top_winner.last_name}:   {prize_manager.award_prize(top_winner)}'
+            self.display.winner_display.top_winner.delete("0.0", 'end')
+            self.display.winner_display.top_winner.insert('0.0', top_winner_string)
 
-        # random winners
-        random_winners = current_report.random_winners
-        random_winners_list = [(f'{student.first_name} {student.last_name}:', prize_manager.award_prize(student).name)
-                               for student in random_winners]
-        random_winners_string = ''
-        longest = max(random_winners_list, key=lambda st: len(st[0]))
-        for s in random_winners_list:
-            l = len(longest[0])
-            m = l - len(s[0])
-            sp = l + m
-            white_s = (' ' * (sp-12))
-            random_winners_string += s[0] + white_s + s[1] + '\n'
-        # print(random_winners_string)
-        self.display.winner_display.random_winners.delete("0.0", 'end')
-        self.display.winner_display.random_winners.insert('0.0', random_winners_string)
+            # random winners
+            random_winners = current_report.random_winners
+            random_winners_list = [
+                (f'{student.first_name} {student.last_name}:', prize_manager.award_prize(student).name)
+                for student in random_winners if student]
+            random_winners_string = ''
+            longest = max(random_winners_list, key=lambda st: len(st[0]))
+            for s in random_winners_list:
+                l = len(longest[0])
+                m = l - len(s[0])
+                sp = l + m
+                white_s = (' ' * (sp - 12))
+                random_winners_string += s[0] + white_s + s[1] + '\n'
+            self.display.winner_display.random_winners.delete("0.0", 'end')
+            self.display.winner_display.random_winners.insert('0.0', random_winners_string)
 
     # all bindings and commands
     def bindings(self):
-        self.view.report_toggle.end_quarter.configure(command=self.end_quarter)
+        toggle = self.view.report_toggle
+        toggle.end_quarter.configure(command=self.end_quarter)
+        toggle.left_toggle.configure(command=self.left_arrow)
+        toggle.right_toggle.configure(command=self.right_arrow)
+        self.display.create_pdf_button.configure(command=self.printt)
 
 
 class ReportFrame(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = ct.CTkLabel(self, text='\nName', font=('arial', 20))
+        self.name = ct.CTkLabel(self, text='\nTitle', font=('arial', 20))
         self.name.grid(row=0, column=0, sticky='NEWS')
 
         self.display = Display(self)

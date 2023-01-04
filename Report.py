@@ -2,6 +2,7 @@ import pickle
 from student import student_manager
 import copy
 
+
 class Prize:
     def __init__(self, name, required_points: int):
         self.name = name
@@ -48,18 +49,20 @@ class PrizeManager:
 
 class Report:
     def __init__(self, name: str = "NoName"):
+
         self.name = name
 
-        self.random_winners = student_manager.get_random_winners()
-        self.top_winner = student_manager.get_winner()
-        self.winners = self.random_winners + (self.top_winner,)
+        self.random_winners = list(map(copy.copy, student_manager.get_random_winners()))
+        self.top_winner = copy.copy(student_manager.get_winner())
+        self.winners = self.random_winners + [self.top_winner, ]
 
-        self.ninth_graders = map(copy.copy, student_manager.get_grade_students(9))
-        self.tenth_graders = map(copy.copy, student_manager.get_grade_students(10))
-        self.eleventh_graders = map(copy.copy, student_manager.get_grade_students(11))
-        self.twelfth_graders = map(copy.copy, student_manager.get_grade_students(12))
+        self.ninth_graders = list(map(copy.copy, student_manager.get_grade_students(9)))
+        self.tenth_graders = list(map(copy.copy, student_manager.get_grade_students(10)))
+        self.eleventh_graders = list(map(copy.copy, student_manager.get_grade_students(11)))
+        self.twelfth_graders = list(map(copy.copy, student_manager.get_grade_students(12)))
 
-        self.students_with_prize = [(student, prize_manager.award_prize(student)) for student in self.winners]
+        self.students_with_prize = [(copy.copy(student), copy.copy(prize_manager.award_prize(student)))
+                                    for student in self.winners]
 
     def __repr__(self):
         return f'Report: {self.name}'
@@ -71,7 +74,7 @@ class Report:
 class ReportManager:
     def __init__(self):
         self.reports = []
-        self.load_data()
+        #self.load_data()
         self.idx = 0
 
     def create_report(self, name: str = "NoName"):
