@@ -4,7 +4,7 @@ import tkinter as tk
 from student import student_manager
 from Events import event_manager
 from Report import report_manager, prize_manager
-from func_utils import limited_weight_cells, place_holder_bind_all
+from func_utils import limited_weight_cells, place_holder_bind_all, place_holder_bind_widget
 
 
 class ReportController:
@@ -26,13 +26,40 @@ class ReportController:
 
     # Prize mechanics
     def add_prize(self):
-        ...
+        dialog_name = ct.CTkInputDialog(text="Name of Prize: ", title="Add a prize")
+        name = dialog_name.get_input()
+        while not name.isalpha():
+            dialog_name = ct.CTkInputDialog(text="Name of Prize: ", title="Add a prize", entry_border_color='red')
+            name = dialog_name.get_input()
+
+        dialog_points = ct.CTkInputDialog(text="Number of points required to get this prize: ", title="Add a prize")
+        points = dialog_points.get_input()
+        while not points.isdigit():
+            dialog_points = ct.CTkInputDialog(text="Number of points required to get this prize: ", title="Add a prize",
+                                              entry_border_color='red')
+            points = dialog_points.get_input()
+
+        prize_manager.add_prize(name, int(points))
+        self.update_table()
 
     def delete_prize(self):
-        ...
+        selected = self.table.tree.selection()
+        if selected:
+            for prize in selected:
+                prize_obj = prize_manager.get_prize(prize)
+                prize_manager.delete_prize(prize_obj)
+        self.update_table()
 
     def edit_prize(self):
-        ...
+        self.table.tree.configure(selectmode='browse')
+        selected = self.table.tree.focus()
+        if selected:
+            name = self.prize_frame.name_entry.get()
+            points = self.prize_frame.points_entry.get()
+            prize = prize_manager.get_prize(selected)
+            prize.name = name
+            prize.points = int(points)  # not updating in tree, fix
+            self.update_table()
 
     def right_arrow(self):
         report_manager.prev()
@@ -43,12 +70,12 @@ class ReportController:
         self.update_display()
 
     def end_quarter(self):
-        dialog = ct.CTkInputDialog(text="Name of report: ", title="Test")
+        dialog = ct.CTkInputDialog(text="Name of report: ", title="New report")
         report_manager.create_report(dialog.get_input())
         report_manager.idx = 0
         self.update_display()
 
-    def printt(self):
+    def create_pdf_report(self):
         report_manager.idx = 0
         self.update_display()
 
@@ -78,9 +105,10 @@ class ReportController:
             # winners
             top_winner = current_report.top_winner
             top_winner_string = f'{top_winner.first_name} {top_winner.last_name}:   {prize_manager.award_prize(top_winner)}'
+            self.display.winner_display.top_winner.configure(state='normal')
             self.display.winner_display.top_winner.delete("0.0", 'end')
             self.display.winner_display.top_winner.insert('0.0', top_winner_string)
-
+            self.display.winner_display.top_winner.configure(state='disabled')
             # random winners
             random_winners = current_report.random_winners
             random_winners_list = [
@@ -94,16 +122,26 @@ class ReportController:
                 sp = l + m
                 white_s = (' ' * (sp - 12))
                 random_winners_string += s[0] + white_s + s[1] + '\n'
+            self.display.winner_display.random_winners.configure(state='normal')
             self.display.winner_display.random_winners.delete("0.0", 'end')
             self.display.winner_display.random_winners.insert('0.0', random_winners_string)
+            self.display.winner_display.random_winners.configure(state='disabled')
 
     # all bindings and commands
     def bindings(self):
+        # toggle buttons
         toggle = self.view.report_toggle
         toggle.end_quarter.configure(command=self.end_quarter)
         toggle.left_toggle.configure(command=self.left_arrow)
         toggle.right_toggle.configure(command=self.right_arrow)
-        self.display.create_pdf_button.configure(command=self.printt)
+
+        # display buttons
+        self.display.create_pdf_button.configure(command=self.create_pdf_report)
+
+        # pize buttons
+        self.prize_frame.add_button.configure(command=self.add_prize)
+        self.prize_frame.delete_button.configure(command=self.delete_prize)
+        self.prize_frame.edit_button.configure(command=self.edit_prize)
 
 
 class ReportFrame(ct.CTkFrame):
@@ -134,11 +172,12 @@ class ReportFrame(ct.CTkFrame):
         self.display.winner_display.rowconfigure(0, weight=0)
         self.display.winner_display.rowconfigure(2, weight=0)
 
-        # prizes label and buttons
+        # prizes: label, entries and buttons
         self.prize_frame.rowconfigure(0, weight=0)
         self.prize_frame.rowconfigure(3, weight=0)
         self.prize_frame.rowconfigure(4, weight=0)
         self.prize_frame.rowconfigure(5, weight=0)
+        self.prize_frame.rowconfigure(6, weight=0)
 
         # Student list displays
         self.display.student_list.rowconfigure(0, weight=0)
@@ -159,10 +198,10 @@ class PrizeFrame(ct.CTkFrame):
         self.configure(border_width=5, border_color='black')
         # Label
         self.label = ct.CTkLabel(self, text='Prizes', font=('arial', 30))
-        self.label.grid(row=0, column=0, sticky='NEWS', padx=20, pady=20)
+        self.label.grid(row=0, column=0, sticky='NEWS', padx=20, pady=20, columnspan=2)
         # Table
         self.prize_table = PrizeTable(self)
-        self.prize_table.grid(row=1, column=0, sticky='NEWS', padx=30)
+        self.prize_table.grid(row=1, column=0, sticky='NEWS', padx=30, columnspan=2)
 
         # Buttons
         font = ('arial', 15)
@@ -171,14 +210,21 @@ class PrizeFrame(ct.CTkFrame):
         pad_y = 5
         height = 40
         self.add_button = ct.CTkButton(self, text='Add prize', font=font, corner_radius=corner_radius, height=height)
-        self.add_button.grid(row=3, column=0, sticky='NEWS', padx=pad_x, pady=pad_y)
+        self.add_button.grid(row=3, column=0, sticky='NEWS', padx=pad_x, pady=pad_y, columnspan=2)
 
         self.delete_button = ct.CTkButton(self, text='Delete prize', font=font, corner_radius=corner_radius,
                                           height=height)
-        self.delete_button.grid(row=4, column=0, sticky='NEWS', padx=pad_x, pady=pad_y)
+        self.delete_button.grid(row=4, column=0, sticky='NEWS', padx=pad_x, pady=pad_y, columnspan=2)
 
         self.edit_button = ct.CTkButton(self, text='Edit prize', font=font, corner_radius=corner_radius, height=height)
-        self.edit_button.grid(row=5, column=0, sticky='NEWS', padx=pad_x, pady=(pad_y, pad_y + 20))
+        self.edit_button.grid(row=5, column=0, sticky='NEWS', padx=pad_x, pady=(pad_y, pad_y), columnspan=2)
+
+        self.name_entry = ct.CTkEntry(self, height=height // 20, placeholder_text=' Name')
+        self.name_entry.grid(row=6, column=0, sticky='NEWS', padx=(pad_x, 0), pady=(pad_y, pad_y))
+        self.points_entry = ct.CTkEntry(self, height=height // 20, placeholder_text=' Points')
+        self.points_entry.grid(row=6, column=1, sticky='NEWS', padx=(0, pad_x), pady=(pad_y, pad_y))
+        # place_holder_bind_widget(self.name_entry)
+        # place_holder_bind_widget(self.points_entry)
 
 
 class PrizeTable(ct.CTkFrame):
@@ -203,14 +249,14 @@ class PrizeTable(ct.CTkFrame):
         self.tree.configure(xscrollcommand=self.scroll_x.set)
 
         # setting up columns
-        columns = ("Prize Name", 'Required Points')
+        columns = ("Prize Name", 'Points')
         self.tree["columns"] = columns
         for column in columns:
             self.tree.heading(column, text=column)
-            if column == 'Required Points':
-                self.tree.column(column, width=200, anchor='center', minwidth=250)
+            if column == 'Points':
+                self.tree.column(column, width=200, anchor='w')
             else:
-                self.tree.column(column, width=200, anchor='center', minwidth=200)
+                self.tree.column(column, width=200, anchor='w', minwidth=230)
 
     def load(self, prizes):
         for prize in prizes:
@@ -301,12 +347,12 @@ class WinnersDisplay(ct.CTkFrame):
 
         ct.CTkLabel(self, text='Top winner', font=('arial', font)).grid(row=0, column=0, sticky=sticky, padx=pad_x,
                                                                         pady=pad_y)
-        self.top_winner = ct.CTkTextbox(self)
+        self.top_winner = ct.CTkTextbox(self, state="disabled")
         self.top_winner.grid(row=1, column=0, sticky='NEWS', padx=10, pady=10)
 
         ct.CTkLabel(self, text='Random winners', font=('arial', font)).grid(row=2, column=0, sticky=sticky, padx=pad_x,
                                                                             pady=pad_y)
-        self.random_winners = ct.CTkTextbox(self, font=('Consolas', 12))
+        self.random_winners = ct.CTkTextbox(self, font=('Consolas', 12), state="disabled")
         self.random_winners.grid(row=3, column=0, sticky='NEWS', padx=10, pady=10)
 
 
