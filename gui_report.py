@@ -57,9 +57,30 @@ class ReportController:
             name = self.prize_frame.name_entry.get()
             points = self.prize_frame.points_entry.get()
             prize = prize_manager.get_prize(selected)
-            prize.name = name
-            prize.points = int(points)  # not updating in tree, fix
+            errors = []
+            valid_name = name.replace('$', '')
+            if not valid_name.replace(' ', '').isalnum():
+                print(valid_name.replace(' ', ''))
+                errors.append('\tThe name may only include letters spaces and numbers.')
+            else:
+                prize.name = name
+            if not points.isdigit():
+                errors.append("\tRequired points may only include whole numbers.")
+            else:
+                prize.required_points = int(points)  # not updating in tree, fix
+            self.show_error(errors) if errors else None
             self.update_table()
+
+    def fill_edit_field(self):
+        prize_name = self.table.tree.focus()
+        prize = prize_manager.get_prize(prize_name)
+
+        self.prize_frame.name_entry.delete('0', 'end')
+        self.prize_frame.name_entry.insert('end', prize.name)
+
+        self.prize_frame.points_entry.delete('0', 'end')
+        self.prize_frame.points_entry.insert('end', prize.required_points)
+
 
     def right_arrow(self):
         report_manager.prev()
@@ -138,11 +159,19 @@ class ReportController:
         # display buttons
         self.display.create_pdf_button.configure(command=self.create_pdf_report)
 
-        # pize buttons
+        # prize buttons
         self.prize_frame.add_button.configure(command=self.add_prize)
         self.prize_frame.delete_button.configure(command=self.delete_prize)
         self.prize_frame.edit_button.configure(command=self.edit_prize)
 
+        # Fill field on double click
+        self.table.tree.bind('<Double-1>', lambda e: self.fill_edit_field())
+
+    def show_error(self, errors):
+        error_string = ''
+        for error in errors:
+            error_string += '\n' + error
+        tk.messagebox.showerror("Error", "The following data entry errors occurred:" + error_string)
 
 class ReportFrame(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
