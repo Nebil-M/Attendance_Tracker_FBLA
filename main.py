@@ -4,6 +4,7 @@ from gui_events import *
 from gui_students import *
 from gui_report import *
 import gui_students2 as s2
+import gui_help
 
 
 class App(customtkinter.CTk):
@@ -232,7 +233,7 @@ class NavigationFrame(customtkinter.CTkFrame):
         self.RC = ReportController(self.fourth_frame)
 
         # create fifth Frame
-        self.fifth_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.fifth_frame = gui_help.HelpMenu(self)
 
         # select default frame
         self.select_frame_by_name("home")
