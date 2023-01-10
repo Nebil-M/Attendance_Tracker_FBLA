@@ -3,8 +3,10 @@ import customtkinter as ct
 from gui_events import *
 from gui_students import *
 from gui_report import *
+from gui_home import HomeFrame
 import gui_students2 as s2
 import gui_help
+
 
 
 class App(customtkinter.CTk):
@@ -99,7 +101,7 @@ class NavigationFrameTop(customtkinter.CTkFrame):
         self.appearance_mode_menu.grid(row=0, column=6, padx=20, pady=20, sticky="s")
 
         # create home frame
-        self.home_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.home_frame = HomeFrame(self)
 
         # create second frame
         self.second_frame = s2.StudentsFrame(self)
@@ -218,7 +220,7 @@ class NavigationFrame(customtkinter.CTkFrame):
         self.appearance_mode_menu.grid(row=7, column=0, padx=20, pady=20, sticky="s")
 
         # create home frame
-        self.home_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.home_frame = HomeFrame(self)
 
         # create second frame
         self.second_frame = s2.StudentsFrame(self)

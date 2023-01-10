@@ -28,19 +28,23 @@ class ReportController:
     def add_prize(self):
         dialog_name = ct.CTkInputDialog(text="Name of Prize: ", title="Add a prize")
         name = dialog_name.get_input()
-        while not name.isalpha():
-            dialog_name = ct.CTkInputDialog(text="Name of Prize: ", title="Add a prize", entry_border_color='red')
-            name = dialog_name.get_input()
+        if name:
+            while not name.isalpha():
+                dialog_name = ct.CTkInputDialog(text="The Name may only include letters and spaces.\n\nName of Prize: ",
+                                                title="Add a prize", entry_border_color='red')
+                name = dialog_name.get_input()
 
-        dialog_points = ct.CTkInputDialog(text="Number of points required to get this prize: ", title="Add a prize")
-        points = dialog_points.get_input()
-        while not points.isdigit():
-            dialog_points = ct.CTkInputDialog(text="Number of points required to get this prize: ", title="Add a prize",
-                                              entry_border_color='red')
+            dialog_points = ct.CTkInputDialog(text="Number of points required to get this prize: ", title="Add a prize")
             points = dialog_points.get_input()
+            if points:
+                while not points.isdigit():
+                    dialog_points = ct.CTkInputDialog(text="Points may only include whole numbers.\n\nPoints required: "
+                                                      , title="Add a prize",
+                                                      entry_border_color='red')
+                    points = dialog_points.get_input()
 
-        prize_manager.add_prize(name, int(points))
-        self.update_table()
+                prize_manager.add_prize(name, int(points))
+                self.update_table()
 
     def delete_prize(self):
         selected = self.table.tree.selection()
@@ -81,7 +85,6 @@ class ReportController:
         self.prize_frame.points_entry.delete('0', 'end')
         self.prize_frame.points_entry.insert('end', prize.required_points)
 
-
     def right_arrow(self):
         report_manager.prev()
         self.update_display()
@@ -92,9 +95,11 @@ class ReportController:
 
     def end_quarter(self):
         dialog = ct.CTkInputDialog(text="Name of report: ", title="New report")
-        report_manager.create_report(dialog.get_input())
-        report_manager.idx = 0
-        self.update_display()
+        quarter_name = dialog.get_input()
+        if quarter_name:
+            report_manager.create_report(quarter_name)
+            report_manager.idx = 0
+            self.update_display()
 
     def create_pdf_report(self):
         report_manager.idx = 0
@@ -172,6 +177,7 @@ class ReportController:
         for error in errors:
             error_string += '\n' + error
         tk.messagebox.showerror("Error", "The following data entry errors occurred:" + error_string)
+
 
 class ReportFrame(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
