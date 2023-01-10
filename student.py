@@ -61,7 +61,8 @@ class StudentManager:
             if student_id == student.student_id:
                 return student
 
-        raise Exception(f"The student ID {student_id} {type(student_id)} does not match any of the students. ")
+        # Returns none if the ID is not in the database
+        return None
 
     def reset_points(self):
         for student in self.students:

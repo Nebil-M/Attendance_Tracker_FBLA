@@ -15,7 +15,7 @@ class StudentController:
         self.students_table = self.view.table
         self.student_tabs = self.view.student_tabs
 
-        # Populates the data from pkl file into table
+        # Populates the data into table
         self.update_students_table()
 
         # Binds the widgets

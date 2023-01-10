@@ -42,10 +42,13 @@ class EventController:
         item = self.events_table.tree.focus()
         validation = self.validate_add_edit_tab(add_tab, item, True)
         if validation == True:
-            # You can select Multiple events to delete
-            for itm in self.events_table.tree.selection():
-                self.model.delete_event(itm)
-            self.update_events_table()
+            confirmation = tk.messagebox.askokcancel("Delete event(s)?",
+                                                     message="Are you sure you want to delete the selected event(s)?")
+            if confirmation:
+                # You can select Multiple events to delete
+                for itm in self.events_table.tree.selection():
+                    self.model.delete_event(itm)
+                self.update_events_table()
         else:
             self.error_show(validation)
 
@@ -104,10 +107,11 @@ class EventController:
             student_id = self.event_tabs.view_tab.student_select.var.get()
         else:
             student_id = self.event_tabs.view_tab.student_select.var.get().split()[2]
-        student = self.student_model.get_student(int(student_id))
         event = self.model.get_event(selected_item)
-        validation = self.validate_view_tab_add(student)
+        validation = self.validate_view_tab_add(int(student_id))
+
         if validation == True:
+            student = self.student_model.get_student(int(student_id))
             event.add_attendee(student)
             self.update_view_tab()
         else:
@@ -147,14 +151,17 @@ class EventController:
         errors = [error for error in errors if not isinstance(error, bool)]
         return errors if errors else True
 
-    def validate_view_tab_add(self, student):
+    def validate_view_tab_add(self, student_id):
         errors = []
         selected_item = self.events_table.tree.focus()
         event = self.model.get_event(selected_item)
         if not selected_item:
-            errors.append('\tNo Event is selected')
-        elif student.student_id in [s.student_id for s in event.attendees]:
-            errors.append('\tStudent already attended event')
+            errors.append('\tNo Event is selected.')
+        elif student_id in [s.student_id for s in event.attendees]:
+            errors.append('\tStudent already attended event.')
+        # Checks whether the student ID exists in the database
+        if student_manager.get_student(student_id) not in student_manager.students:
+            errors.append('\tNo student exists with this ID.')
 
         return errors if errors else True
 
@@ -163,9 +170,9 @@ class EventController:
         selected_item = self.events_table.tree.focus()
         event = self.model.get_event(selected_item)
         if not selected_item:
-            errors.append('\tNo Event is selected')
+            errors.append('\tNo Event is selected.')
         elif not idexes:
-            errors.append('\tNo Student is selected')
+            errors.append('\tNo Student is selected.')
 
         return errors if errors else True
 
@@ -190,7 +197,7 @@ class EventController:
 
         values = [f'{s.first_name} {s.last_name}, {s.student_id}' for s in self.student_model.students]
         self.event_tabs.view_tab.student_select.configure(values=values)
-        self.event_tabs.view_tab.student_select.var.set(value=values[0])
+        self.event_tabs.view_tab.student_select.var.set(value="")
 
         # Custom view_select
         selected_item = self.events_table.tree.focus()
@@ -217,8 +224,8 @@ class EventController:
         self.events_table.tree.bind('<Double-1>', self.edit_select_fill)
         self.events_table.tree.bind('<ButtonRelease-1>', self.view_select)
         self.event_tabs.add_tab.add.configure(command=self.add_event)
-        self.event_tabs.add_tab.delete.configure(command=self.delete_event)
 
+        self.event_tabs.edit_tab.delete.configure(command=self.delete_event)
         self.event_tabs.edit_tab.edit_button.configure(command=self.edit_event)
 
         self.event_tabs.view_tab.student_add.configure(command=self.add_student_view)
@@ -226,7 +233,7 @@ class EventController:
 
         values = [f'{s.first_name} {s.last_name}, {s.student_id}' for s in self.student_model.students]
         self.event_tabs.view_tab.student_select.configure(values=values)
-        self.event_tabs.view_tab.student_select.var.set(value=values[0])
+        self.event_tabs.view_tab.student_select.var.set(value="")
 
 
 # Combining both frames
@@ -344,21 +351,21 @@ class EventTools(ct.CTkFrame):
         height = 40
         anchor = "center"
 
-        nav_add = ct.CTkButton(self.nav_frame, text="Add tab", command=lambda: self.show_frame(AddTab, nav_add),
+        nav_add = ct.CTkButton(self.nav_frame, text="Add event", command=lambda: self.show_frame(AddTab, nav_add),
                                border_width=border_width, border_color=border_color, corner_radius=corner_radius,
                                fg_color=fg_color, text_color=text_color, font=font,
                                hover_color=hover_color, height=height,
                                anchor=anchor, )
         nav_add.grid(row=0, column=0, sticky='NEWS')
 
-        nav_del = ct.CTkButton(self.nav_frame, text="Edit tab", command=lambda: self.show_frame(EditTab, nav_del),
+        nav_del = ct.CTkButton(self.nav_frame, text="Edit event", command=lambda: self.show_frame(EditTab, nav_del),
                                border_width=border_width, border_color=border_color, corner_radius=corner_radius,
                                fg_color=fg_color, text_color=text_color, font=font,
                                hover_color=hover_color, height=height,
                                anchor=anchor, )
         nav_del.grid(row=0, column=1, sticky='NEWS')
 
-        nav_view = ct.CTkButton(self.nav_frame, text="View tab", command=lambda: self.show_frame(ViewTab, nav_view),
+        nav_view = ct.CTkButton(self.nav_frame, text="Attendance", command=lambda: self.show_frame(ViewTab, nav_view),
                                 border_width=border_width, border_color=border_color, corner_radius=corner_radius,
                                 fg_color=fg_color, text_color=text_color, font=font,
                                 hover_color=hover_color, height=height,
@@ -395,7 +402,6 @@ class AddTab(ct.CTkFrame):
         self.nature = ct.CTkEntry(self, placeholder_text='Nature', font=('arial', font))
         self.description = ct.CTkTextbox(self, height=100, font=('arial', font))
         self.add = ct.CTkButton(self, text="Add Event", font=('arial', font))
-        self.delete = ct.CTkButton(self, text="Delete Event", font=('arial', font))
 
         # add_default text for description box
         self.description.insert('0.0', 'Description of the event')
@@ -406,8 +412,7 @@ class AddTab(ct.CTkFrame):
         self.id.grid(row=1, column=0, sticky='NEWS', padx=pad, pady=pad + 10)
         self.nature.grid(row=1, column=1, sticky='NEWS', padx=pad, pady=pad + 10)
         self.description.grid(row=2, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
-        self.add.grid(row=3, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
-        self.delete.grid(row=4, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
+        self.add.grid(row=3, sticky='NEWS', padx=pad, pady=(pad, 120), columnspan=2)
 
         # applying a weight of 1 to all cells
         limited_weight_cells(self)
@@ -438,6 +443,7 @@ class EditTab(ct.CTkFrame):
         self.nature = ct.CTkEntry(self, placeholder_text='Nature', font=('arial', font))
         self.description = ct.CTkTextbox(self, height=100, font=('arial', font))
         self.edit_button = ct.CTkButton(self, text="Edit Event", font=('arial', font), anchor='center')
+        self.delete = ct.CTkButton(self, text="Delete Event", font=('arial', font), fg_color="#990000", hover_color="#800000")
 
         # add_default text for description box
         self.description.insert('0.0', 'Description of the event')
@@ -449,7 +455,9 @@ class EditTab(ct.CTkFrame):
         self.id.grid(row=1, column=0, sticky='NEWS', padx=pad, pady=pad + 10)
         self.nature.grid(row=1, column=1, sticky='NEWS', padx=pad, pady=pad + 10)
         self.description.grid(row=2, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
-        self.edit_button.grid(row=3, sticky='NEWS', padx=pad + 40, pady=pad, columnspan=2)
+        self.edit_button.grid(row=3, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
+        self.delete.grid(row=4, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
+
         # applying a weight of 1 to all cells
         limited_weight_cells(self)
 
@@ -485,8 +493,8 @@ class ViewTab(ct.CTkFrame):
         self.student_tools = ct.CTkFrame(self, fg_color='transparent')
         self.student_select = ct.CTkComboBox(self.student_tools)
         self.student_add = ct.CTkButton(self.student_tools, text='Add Student', font=('arial', 20), anchor='center')
-        self.delete_student = ct.CTkButton(self.student_tools, text='Delete Student', font=('arial', 20),
-                                           anchor='center')
+        self.delete_student = ct.CTkButton(self.student_tools, text='Remove Student', font=('arial', 20),
+                                           anchor='center', fg_color="#990000", hover_color="#800000")
 
         self.description = ct.CTkTextbox(self, height=200, font=('arial', 20))
         # add_default text for description box
@@ -519,7 +527,7 @@ class ViewTab(ct.CTkFrame):
         self.event_name.configure(textvariable=self.event_name.var)
         self.student_list.var = tk.StringVar(value=[])
         self.student_list.configure(listvariable=self.student_list.var)
-        self.student_select.var = tk.StringVar()
+        self.student_select.var = tk.StringVar(value="Enter a student ID:")
         self.student_select.configure(variable=self.student_select.var)
 
 

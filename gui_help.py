@@ -80,7 +80,7 @@ class HelpMenu(ct.CTkFrame):
     4.  Click the red Delete button. 
     5.  Click OK on the confirmation popup. The student should now be removed from the database on the center of the screen. 
 """
-        question4_heading = "How do I add new events to the database?"
+        question4_heading = " How do I add new events to the database?"
         question4_answer = """
     1.  Go to the Events page by clicking on Events on the navigation menu on the left side of the screen. 
     2.  Make sure to navigate to the Add Events tab by clicking on the Add tab button located in the top right. 
@@ -92,7 +92,7 @@ class HelpMenu(ct.CTkFrame):
           -  The Description (optional) may include letters, numbers, spaces, and special characters. 
     4.  Click the Save button. If there is an issue with data entry, a popup window will appear and describe the error. If so, go back to step 3 and adjust the appropriate fields to address the issue. If the event has been successfully added, the new event should appear in the list of event on the center of the screen. 
 """
-        question5_heading = "How do I edit an existing event’s information?"
+        question5_heading = " How do I edit an existing event’s information?"
         question5_answer = """
     1.  Go to the Events page by clicking on Events on the navigation menu on the left side of the screen. 
     2.  Make sure to navigate to the Edit Events tab by clicking on the Edit tab button located in the top right. 
@@ -105,7 +105,7 @@ class HelpMenu(ct.CTkFrame):
           -  The Description (optional) may include letters, numbers, spaces, and special characters. 
     4.  Click the Save button. If there is an issue with data entry, a popup window will appear and describe the error. If so, go back to step 3 and adjust the appropriate fields to address the issue. If the event has been successfully added, the new event should appear in the list of event on the center of the screen. 
 """
-        question6_heading = "How do I remove an event from the database?"
+        question6_heading = " How do I remove an event from the database?"
         question6_answer = """
     1.  Go to the Events page by clicking on Events on the navigation menu on the left side of the screen. 
     2.  Make sure to navigate to the Add Events tab by clicking on the Add tab button located in the top right. 
