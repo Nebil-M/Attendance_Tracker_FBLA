@@ -2,7 +2,7 @@ import customtkinter
 import customtkinter as ct
 from gui_events import *
 from gui_report import *
-from gui_home import HomeFrame
+from gui_home import HomeFrame, HomeController
 import gui_students as s2
 import gui_help
 
@@ -220,6 +220,7 @@ class NavigationFrame(customtkinter.CTkFrame):
 
         # create home frame
         self.home_frame = HomeFrame(self)
+        self.HC = HomeController(self.home_frame)
 
         # create second frame
         self.second_frame = s2.StudentsFrame(self)
@@ -297,6 +298,8 @@ class NavigationFrame(customtkinter.CTkFrame):
 
         self.RC.update_table()
         self.RC.update_display()
+
+        self.HC.update()
 
 if __name__ == "__main__":
     app = App()
