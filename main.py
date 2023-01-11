@@ -1,10 +1,9 @@
 import customtkinter
 import customtkinter as ct
 from gui_events import *
-from gui_students import *
 from gui_report import *
 from gui_home import HomeFrame
-import gui_students2 as s2
+import gui_students as s2
 import gui_help
 
 
