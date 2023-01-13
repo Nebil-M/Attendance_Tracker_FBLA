@@ -7,12 +7,11 @@ import gui_students as s2
 import gui_help
 
 
-
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         self.geometry("1400x600")
-        self.title("Main")
+        self.title("Attendance Tracker")
         customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
         customtkinter.set_default_color_theme("dark-blue")
         NavigationFrame(self).grid(padx=0, pady=0, row=0, column=0, sticky="NEWS")
@@ -209,14 +208,14 @@ class NavigationFrame(customtkinter.CTkFrame):
         self.frame_5_button.grid(row=5, column=0, sticky="ew")
 
         for child in self.navigation_frame.winfo_children():
-            #self.navigation_frame.rowconfigure(child.grid_info()['row'], weight=1)
+            # self.navigation_frame.rowconfigure(child.grid_info()['row'], weight=1)
             self.navigation_frame.columnconfigure(child.grid_info()['column'], weight=1)
 
         # Appearance changer
         self.appearance_mode_menu = customtkinter.CTkOptionMenu(self.navigation_frame,
                                                                 values=["Dark", "Light", "System"],
                                                                 command=self.change_appearance_mode_event)
-        self.appearance_mode_menu.grid(row=7, column=0, padx=20, pady=20, sticky="s")
+        # self.appearance_mode_menu.grid(row=7, column=0, padx=20, pady=20, sticky="s")
 
         # create home frame
         self.home_frame = HomeFrame(self)

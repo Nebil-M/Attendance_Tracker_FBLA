@@ -1,6 +1,7 @@
 import pickle
 from student import student_manager
 import copy
+import datetime
 
 
 class Prize:
@@ -51,6 +52,7 @@ class Report:
     def __init__(self, name: str = "NoName"):
 
         self.name = name
+        self.date = str(datetime.date.today())
 
         self.random_winners = list(map(copy.copy, student_manager.get_random_winners()))
         self.top_winner = copy.copy(student_manager.get_winner())
