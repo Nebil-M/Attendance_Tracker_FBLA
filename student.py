@@ -77,11 +77,11 @@ class StudentManager:
         student_with_most_points = max(self.students, key=lambda student: student.points)
         return student_with_most_points
 
-    def get_random_winners(self):
-        grade_9_students = self.get_grade_students(9)
-        grade_10_students = self.get_grade_students(10)
-        grade_11_students = self.get_grade_students(11)
-        grade_12_students = self.get_grade_students(12)
+    def get_random_winners(self, exclude=[]):
+        grade_9_students = [student for student in self.get_grade_students(9) if student.student_id not in exclude]
+        grade_10_students = [student for student in self.get_grade_students(10) if student.student_id not in exclude]
+        grade_11_students = [student for student in self.get_grade_students(11) if student.student_id not in exclude]
+        grade_12_students = [student for student in self.get_grade_students(12) if student.student_id not in exclude]
 
         grade_9_winner = random.choice(grade_9_students) if grade_9_students else None
         grade_10_winner = random.choice(grade_10_students) if grade_10_students else None

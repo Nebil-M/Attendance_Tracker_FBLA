@@ -54,8 +54,8 @@ class Report:
         self.name = name
         self.date = str(datetime.date.today())
 
-        self.random_winners = list(map(copy.copy, student_manager.get_random_winners()))
         self.top_winner = copy.copy(student_manager.get_winner())
+        self.random_winners = list(map(copy.copy, student_manager.get_random_winners([self.top_winner.student_id])))
         self.winners = self.random_winners + [self.top_winner, ]
 
         self.ninth_graders = list(map(copy.copy, student_manager.get_grade_students(9)))

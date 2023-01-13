@@ -59,7 +59,7 @@ class NavigationFrameTop(customtkinter.CTkFrame):
         # create navigation frame
         self.navigation_frame = customtkinter.CTkFrame(self, corner_radius=0)
         self.navigation_frame.grid(row=0, column=0, sticky="new")
-        self.navigation_frame.columnconfigure(4, weight=1)
+        self.navigation_frame.columnconfigure(6, weight=1)
 
         self.navigation_frame_label = customtkinter.CTkLabel(self.navigation_frame, text="Navigation",
                                                              compound="left",
@@ -88,6 +88,20 @@ class NavigationFrameTop(customtkinter.CTkFrame):
                                                       anchor="w", command=self.frame_3_button_event)
         self.frame_3_button.grid(row=0, column=3, sticky="ew")
 
+        self.frame_4_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40,
+                                                      border_spacing=10, text="Report",
+                                                      fg_color="transparent", text_color=("gray10", "gray90"),
+                                                      hover_color=("gray70", "gray30"),
+                                                      anchor="w", command=self.frame_4_button_event)
+        self.frame_4_button.grid(row=0, column=4, sticky="ew")
+
+        self.frame_5_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40,
+                                                      border_spacing=10, text="Help",
+                                                      fg_color="transparent", text_color=("gray10", "gray90"),
+                                                      hover_color=("gray70", "gray30"),
+                                                      anchor="w", command=self.frame_5_button_event)
+        self.frame_5_button.grid(row=0, column=5, sticky="ew")
+
         for child in self.navigation_frame.winfo_children():
             self.navigation_frame.rowconfigure(child.grid_info()['row'], weight=1)
             # self.navigation_frame.columnconfigure(child.grid_info()['column'], weight=1)
@@ -96,10 +110,11 @@ class NavigationFrameTop(customtkinter.CTkFrame):
         self.appearance_mode_menu = customtkinter.CTkOptionMenu(self.navigation_frame,
                                                                 values=["Dark", "Light", "System"],
                                                                 command=self.change_appearance_mode_event)
-        self.appearance_mode_menu.grid(row=0, column=6, padx=20, pady=20, sticky="s")
+        # self.appearance_mode_menu.grid(row=0, column=6, padx=20, pady=20, sticky="s")
 
         # create home frame
         self.home_frame = HomeFrame(self)
+        self.HC = HomeController(self.home_frame)
 
         # create second frame
         self.second_frame = s2.StudentsFrame(self)
@@ -108,6 +123,13 @@ class NavigationFrameTop(customtkinter.CTkFrame):
         # create third frame
         self.third_frame = EventsFrame(self)
         self.EC = EventController(self.third_frame)
+
+        # create fourth frame
+        self.fourth_frame = ReportFrame(self)
+        self.RC = ReportController(self.fourth_frame)
+
+        # create fifth Frame
+        self.fifth_frame = gui_help.HelpMenu(self)
 
         # select default frame
         self.select_frame_by_name("home")
@@ -118,6 +140,8 @@ class NavigationFrameTop(customtkinter.CTkFrame):
         self.home_button.configure(fg_color=("gray75", "gray25") if name == "home" else "transparent")
         self.frame_2_button.configure(fg_color=("gray75", "gray25") if name == "frame_2" else "transparent")
         self.frame_3_button.configure(fg_color=("gray75", "gray25") if name == "frame_3" else "transparent")
+        self.frame_4_button.configure(fg_color=("gray75", "gray25") if name == "frame_4" else "transparent")
+        self.frame_5_button.configure(fg_color=("gray75", "gray25") if name == "frame_5" else "transparent")
 
         # show selected frame
         if name == "home":
@@ -132,6 +156,14 @@ class NavigationFrameTop(customtkinter.CTkFrame):
             self.third_frame.grid(row=1, column=0, sticky="nsew")
         else:
             self.third_frame.grid_forget()
+        if name == "frame_4":
+            self.fourth_frame.grid(row=1, column=0, sticky="nsew")
+        else:
+            self.fourth_frame.grid_forget()
+        if name == "frame_5":
+            self.fifth_frame.grid(row=1, column=0, sticky="nsew")
+        else:
+            self.fifth_frame.grid_forget()
 
     def home_button_event(self):
         self.select_frame_by_name("home")
@@ -142,13 +174,26 @@ class NavigationFrameTop(customtkinter.CTkFrame):
     def frame_3_button_event(self):
         self.select_frame_by_name("frame_3")
 
+    def frame_4_button_event(self):
+        self.select_frame_by_name("frame_4")
+
+    def frame_5_button_event(self):
+        self.select_frame_by_name("frame_5")
+
     def change_appearance_mode_event(self, new_appearance_mode):
         customtkinter.set_appearance_mode(new_appearance_mode)
 
+    # function that must be syncronized across frames. run whenever a frame is changed
     def cross_frame_func(self):
         self.SC.update_students_table()
+
         self.EC.update_events_table()
-        # self.EC.update_view_tab()
+        self.EC.update_view_tab()
+
+        self.RC.update_table()
+        self.RC.update_display()
+
+        self.HC.update()
 
 
 # Nav bar at the top, Default view. Access by changing 'NavigationFrameTop' to 'NavigationFrame' in the App class.
@@ -299,6 +344,7 @@ class NavigationFrame(customtkinter.CTkFrame):
         self.RC.update_display()
 
         self.HC.update()
+
 
 if __name__ == "__main__":
     app = App()

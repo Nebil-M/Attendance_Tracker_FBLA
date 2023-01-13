@@ -49,9 +49,12 @@ class ReportController:
     def delete_prize(self):
         selected = self.table.tree.selection()
         if selected:
-            for prize in selected:
-                prize_obj = prize_manager.get_prize(prize)
-                prize_manager.delete_prize(prize_obj)
+            confirmation = tk.messagebox.askokcancel("Delete event(s)?",
+                                                     message="Are you sure you want to delete the selected prizes(s)?")
+            if confirmation:
+                for prize in selected:
+                    prize_obj = prize_manager.get_prize(prize)
+                    prize_manager.delete_prize(prize_obj)
         self.update_table()
 
     def edit_prize(self):
@@ -106,12 +109,22 @@ class ReportController:
                 student.points = 0
             # should attendees list be cleared as well?
             # should Events be deleted as well?
-            for event in event_manager:
+            for event in event_manager.events:
                 event.attendees = []
 
     def create_pdf_report(self):
         report_manager.idx = 0
         self.update_display()
+
+    def delete_report(self):
+        current_report = report_manager.current()
+        if current_report:
+            confirmation = tk.messagebox.askokcancel("Delete event(s)?",
+                                                     message="Are you sure you want to delete the current report?")
+            if confirmation:
+                report_manager.reports.remove(current_report)
+                report_manager.prev()
+                self.update_display()
 
     # Update Events
     def update_table(self):
@@ -146,21 +159,38 @@ class ReportController:
             self.display.winner_display.top_winner.configure(state='disabled')
             # random winners
             random_winners = current_report.random_winners
-            random_winners_list = [
-                (f'{student.first_name} {student.last_name}:', prize_manager.award_prize(student).name)
-                for student in random_winners if student]
-            random_winners_string = ''
-            longest = max(random_winners_list, key=lambda st: len(st[0]))
-            for s in random_winners_list:
-                l = len(longest[0])
-                m = l - len(s[0])
-                sp = l + m
-                white_s = (' ' * (sp - 12))
-                random_winners_string += s[0] + white_s + s[1] + '\n'
+            if random_winners:
+                random_winners_list = [
+                    (f'{student.first_name} {student.last_name}:', prize_manager.award_prize(student).name)
+                    for student in random_winners if student]
+                random_winners_string = ''
+                longest = max(random_winners_list, key=lambda st: len(st[0]))
+                for s in random_winners_list:
+                    l = len(longest[0])
+                    m = l - len(s[0])
+                    sp = l + m
+                    white_s = (' ' * (sp - 12))
+                    random_winners_string += s[0] + white_s + s[1] + '\n'
+                self.display.winner_display.random_winners.configure(state='normal')
+                self.display.winner_display.random_winners.delete("0.0", 'end')
+                self.display.winner_display.random_winners.insert('0.0', random_winners_string)
+                self.display.winner_display.random_winners.configure(state='disabled')
+        else:
+            self.view.name.configure(text='\nName')
+            self.view.date.configure(text='\nDate')
+
+            self.display.winner_display.top_winner.configure(state='normal')
+            self.display.winner_display.top_winner.delete("0.0", 'end')
+            self.display.winner_display.top_winner.configure(state='disabled')
+
             self.display.winner_display.random_winners.configure(state='normal')
             self.display.winner_display.random_winners.delete("0.0", 'end')
-            self.display.winner_display.random_winners.insert('0.0', random_winners_string)
             self.display.winner_display.random_winners.configure(state='disabled')
+
+            self.student_list.ninth_grade.var.set([])
+            self.student_list.tenth_grade.var.set([])
+            self.student_list.eleventh_grade.var.set([])
+            self.student_list.twelfth_grade.var.set([])
 
     # all bindings and commands
     def bindings(self):
@@ -172,6 +202,7 @@ class ReportController:
 
         # display buttons
         self.display.create_pdf_button.configure(command=self.create_pdf_report)
+        self.display.delete_report.configure(command=self.delete_report)
 
         # prize buttons
         self.prize_frame.add_button.configure(command=self.add_prize)

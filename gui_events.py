@@ -412,7 +412,7 @@ class AddTab(ct.CTkFrame):
         self.id.grid(row=1, column=0, sticky='NEWS', padx=pad, pady=pad + 10)
         self.nature.grid(row=1, column=1, sticky='NEWS', padx=pad, pady=pad + 10)
         self.description.grid(row=2, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
-        self.add.grid(row=3, sticky='NEWS', padx=pad, pady=(pad, 120), columnspan=2)
+        self.add.grid(row=3, sticky='NEWS', padx=pad, pady=(pad, pad), columnspan=2)
 
         # applying a weight of 1 to all cells
         limited_weight_cells(self)

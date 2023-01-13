@@ -55,7 +55,7 @@ class HomeController:
 class HomeFrame(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        label = ct.CTkLabel(self, text='Attendance Tracker', font=('arial', 40, "bold", 'italic'))
+        label = ct.CTkLabel(self, text='Attendance Tracker', font=('arial', 60, "bold", 'italic'))
         label.grid(row=0, column=0, sticky='NEWS', padx=10, pady=20, columnspan=2)
         self.graph = Graph(self, width=400)
         self.graph.grid(row=1, column=0, sticky='NEWS', padx=10, pady=20, rowspan=2)
