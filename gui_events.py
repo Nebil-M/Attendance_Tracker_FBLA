@@ -103,19 +103,23 @@ class EventController:
     def add_student_view(self, event=None):
         typed = self.event_tabs.view_tab.student_select.var.get()
         selected_item = self.events_table.tree.focus()
-        if typed.isdigit() and len(typed) == 8:
-            student_id = self.event_tabs.view_tab.student_select.var.get()
-        else:
-            student_id = self.event_tabs.view_tab.student_select.var.get().split()[2]
-        event = self.model.get_event(selected_item)
-        validation = self.validate_view_tab_add(int(student_id))
+        if typed:
+            if typed.isdigit() and len(typed) == 8:
+                student_id = self.event_tabs.view_tab.student_select.var.get()
+            else:
+                student_id = self.event_tabs.view_tab.student_select.var.get().split()[2]
+            event = self.model.get_event(selected_item)
+            validation = self.validate_view_tab_add(int(student_id))
 
-        if validation == True:
-            student = self.student_model.get_student(int(student_id))
-            event.add_attendee(student)
-            self.update_view_tab()
+            if validation == True:
+                student = self.student_model.get_student(int(student_id))
+                event.add_attendee(student)
+                self.update_view_tab()
+            else:
+                self.error_show(validation)
         else:
-            self.error_show(validation)
+            self.error_show(['\tNo student selected.'])
+
 
     def delete_student_view(self, event=None):
         indexes = self.event_tabs.view_tab.student_list.curselection()
@@ -196,6 +200,7 @@ class EventController:
             event.attendees = [attendee for attendee in event.attendees if attendee.student_id in real_ids]
 
         values = [f'{s.first_name} {s.last_name}, {s.student_id}' for s in self.student_model.students]
+
         self.event_tabs.view_tab.student_select.configure(values=values)
         self.event_tabs.view_tab.student_select.var.set(value="")
 
@@ -394,30 +399,48 @@ class AddTab(ct.CTkFrame):
         super().__init__(*args, **kwargs)
         self.configure(fg_color="transparent")
         # Creating widgets
-        font = 20
-        self.name = ct.CTkEntry(self, placeholder_text='Event Name', font=('arial', font))
-        self.date = ct.CTkEntry(self, placeholder_text='Date', font=('arial', font))
+        font = 15
+        ct.CTkLabel(self, text='Event Name', font=('arial', font), anchor='sw').grid(
+            row=0, column=0, sticky='NEWS', padx=10, pady=2)
+        self.name = ct.CTkEntry(self, placeholder_text='Name of Event', font=('arial', font))
+        ct.CTkLabel(self, text='Date ', font=('arial', font), anchor='sw').grid(
+            row=0, column=1, sticky='NEWS', padx=10, pady=2)
+        self.date = ct.CTkEntry(self, placeholder_text='In MM/DD/YYYY format', font=('arial', font))
         # use IntVar
-        self.id = ct.CTkEntry(self, placeholder_text='ID', font=('arial', font))
-        self.nature = ct.CTkEntry(self, placeholder_text='Nature', font=('arial', font))
+        ct.CTkLabel(self, text='ID', font=('arial', font), anchor='sw').grid(
+            row=2, column=0, sticky='NEWS', padx=10, pady=2)
+        self.id = ct.CTkEntry(self, placeholder_text='92180000 to 92189999', font=('arial', font))
+        ct.CTkLabel(self, text='Nature', font=('arial', font), anchor='sw').grid(
+            row=2, column=1, sticky='NEWS', padx=10, pady=2)
+        self.nature = ct.CTkEntry(self, placeholder_text='Nature of Event', font=('arial', font))
         self.description = ct.CTkTextbox(self, height=100, font=('arial', font))
-        self.add = ct.CTkButton(self, text="Add Event", font=('arial', font))
+        self.add = ct.CTkButton(self, text="Add Event", font=('arial', font+10))
 
         # add_default text for description box
         self.description.insert('0.0', 'Description of the event')
         # griding in entries
         pad = 10
-        self.name.grid(row=0, column=0, sticky='NEWS', padx=pad, pady=(pad + 30, pad))
-        self.date.grid(row=0, column=1, sticky='NEWS', padx=pad, pady=(pad + 30, pad))
-        self.id.grid(row=1, column=0, sticky='NEWS', padx=pad, pady=pad + 10)
-        self.nature.grid(row=1, column=1, sticky='NEWS', padx=pad, pady=pad + 10)
-        self.description.grid(row=2, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
-        self.add.grid(row=3, sticky='NEWS', padx=pad, pady=(pad, pad), columnspan=2)
+        self.name.grid(row=1, column=0, sticky='NEWS', padx=pad, pady=(0, pad))
+        self.date.grid(row=1, column=1, sticky='NEWS', padx=pad, pady=(0, pad))
+        self.id.grid(row=3, column=0, sticky='NEWS', padx=pad, pady=(0, pad + 10))
+        self.nature.grid(row=3, column=1, sticky='NEWS', padx=pad, pady=(0, pad + 10))
+        self.description.grid(row=4, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
+        self.add.grid(row=5, sticky='NEWS', padx=pad+40, pady=pad+30, columnspan=2, rowspan=2)
+
 
         # applying a weight of 1 to all cells
         limited_weight_cells(self)
         # add vars to all entries
         self.add_vars_to_entries()
+
+        # Manual layout edit
+        self.rowconfigure(0, weight=0)
+        self.rowconfigure(2, weight=0)
+        self.rowconfigure(1, weight=0, minsize=75)
+        self.rowconfigure(3, weight=0, minsize=90)
+        self.rowconfigure(5, weight=0, minsize=90)
+        self.rowconfigure(6, weight=0, minsize=90)
+
 
     def add_vars_to_entries(self):
         self.name.var = tk.StringVar()
@@ -435,35 +458,47 @@ class EditTab(ct.CTkFrame):
         super().__init__(*args, **kwargs)
         self.configure(fg_color="transparent")
         # Creating widgets
-        font = 20
-        self.name = ct.CTkEntry(self, placeholder_text='Event Name', font=('arial', font))
-        self.date = ct.CTkEntry(self, placeholder_text='Date', font=('arial', font))
-        # Use IntVar
-        self.id = ct.CTkEntry(self, placeholder_text='ID', font=('arial', font))
-        self.nature = ct.CTkEntry(self, placeholder_text='Nature', font=('arial', font))
+        font = 15
+        ct.CTkLabel(self, text='Event Name', font=('arial', font), anchor='sw').grid(
+            row=0, column=0, sticky='NEWS', padx=10, pady=2)
+        self.name = ct.CTkEntry(self, placeholder_text='Name of Event', font=('arial', font))
+        ct.CTkLabel(self, text='Date ', font=('arial', font), anchor='sw').grid(
+            row=0, column=1, sticky='NEWS', padx=10, pady=2)
+        self.date = ct.CTkEntry(self, placeholder_text='In MM/DD/YYYY format', font=('arial', font))
+        # use IntVar
+        ct.CTkLabel(self, text='ID', font=('arial', font), anchor='sw').grid(
+            row=2, column=0, sticky='NEWS', padx=10, pady=2)
+        self.id = ct.CTkEntry(self, placeholder_text='92180000 to 92189999', font=('arial', font))
+        ct.CTkLabel(self, text='Nature', font=('arial', font), anchor='sw').grid(
+            row=2, column=1, sticky='NEWS', padx=10, pady=2)
+        self.nature = ct.CTkEntry(self, placeholder_text='Nature of Event', font=('arial', font))
         self.description = ct.CTkTextbox(self, height=100, font=('arial', font))
-        self.edit_button = ct.CTkButton(self, text="Edit Event", font=('arial', font), anchor='center')
-        self.delete = ct.CTkButton(self, text="Delete Event", font=('arial', font), fg_color="#990000", hover_color="#800000")
+        self.edit_button = ct.CTkButton(self, text="Edit Event", font=('arial', font+5), anchor='center')
+        self.delete = ct.CTkButton(self, text="Delete Event", font=('arial', font+5), fg_color="#990000", hover_color="#800000")
 
         # add_default text for description box
         self.description.insert('0.0', 'Description of the event')
 
         # griding in entries
         pad = 10
-        self.name.grid(row=0, column=0, sticky='NEWS', padx=pad, pady=(pad + 30, pad))
-        self.date.grid(row=0, column=1, sticky='NEWS', padx=pad, pady=(pad + 30, pad))
-        self.id.grid(row=1, column=0, sticky='NEWS', padx=pad, pady=pad + 10)
-        self.nature.grid(row=1, column=1, sticky='NEWS', padx=pad, pady=pad + 10)
-        self.description.grid(row=2, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
-        self.edit_button.grid(row=3, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
-        self.delete.grid(row=4, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
+        self.name.grid(row=1, column=0, sticky='NEWS', padx=pad, pady=(0, pad))
+        self.date.grid(row=1, column=1, sticky='NEWS', padx=pad, pady=(0, pad))
+        self.id.grid(row=3, column=0, sticky='NEWS', padx=pad, pady=(0, pad + 10))
+        self.nature.grid(row=3, column=1, sticky='NEWS', padx=pad, pady=(0, pad + 10))
+        self.description.grid(row=4, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
+        self.edit_button.grid(row=5, sticky='NEWS', padx=pad+40, pady=pad, columnspan=2)
+        self.delete.grid(row=6, sticky='NEWS', padx=pad+40, pady=pad, columnspan=2)
 
         # applying a weight of 1 to all cells
         limited_weight_cells(self)
 
-        # Evening out the different tab alignment
-        self.rowconfigure(4, weight=1)
-        self.rowconfigure(5, weight=1)
+        # Manual editing of layout for some widgets
+        self.rowconfigure(0, weight=0)
+        self.rowconfigure(2, weight=0)
+        self.rowconfigure(1, weight=0, minsize=75)
+        self.rowconfigure(3, weight=0, minsize=90)
+        self.rowconfigure(5, weight=0, minsize=90)
+        self.rowconfigure(6, weight=0, minsize=90)
 
         # add vars to all entries
         self.add_vars_to_entries()
@@ -485,6 +520,7 @@ class ViewTab(ct.CTkFrame):
         self.configure(fg_color="transparent")
         self.event_name = ct.CTkLabel(self, text="Event Name", font=('arial', 30))
         # Student_list
+        label = ct.CTkLabel(self, text="List of attendees", font=('arial', 20, 'italic'))
         self.student_list = tk.Listbox(self, height=3, borderwidth=10,
                                        width=15, background="#343638", activestyle='dotbox',
                                        font=("Helvetica", 15, "bold"), foreground="gray"
@@ -504,20 +540,22 @@ class ViewTab(ct.CTkFrame):
         pad = 10
         self.event_name.grid(row=0, column=0, sticky='NSEW', columnspan=2,
                              padx=pad + 40, pady=(pad + 20, pad + 10))
-        self.student_list.grid(row=1, column=0, sticky='NSEW', padx=(pad, 0), pady=pad, rowspan=3)
+        label.grid(row=1, column=0, sticky='NSEW')
+        self.student_list.grid(row=2, column=0, sticky='NSEW', padx=(pad, 0), pady=(0, pad))
 
-        self.student_tools.grid(row=1, column=1, sticky='NSEW', padx=0, pady=pad)
+        self.student_tools.grid(row=1, column=1, sticky='NSEW', padx=0, pady=pad, rowspan=2)
         self.student_select.grid(row=0, column=0, sticky='NSEW', padx=pad, pady=0)
         self.student_add.grid(row=1, column=0, sticky='NSEW', padx=pad, pady=pad)
         self.delete_student.grid(row=2, column=0, sticky='NSEW', padx=pad, pady=0)
 
-        self.description.grid(row=4, column=0, sticky='NSEW', padx=pad, pady=pad, columnspan=2)
+        self.description.grid(row=5, column=0, sticky='NSEW', padx=pad, pady=pad, columnspan=2)
 
         # applying a weight of 1 to all cells
         limited_weight_cells(self)
 
         # Manually editing layout
-        self.rowconfigure(4, weight=7)
+        self.rowconfigure(5, weight=7)
+        self.rowconfigure(1, weight=0)
 
         # add vars to all applicable widgets
         self.add_vars()

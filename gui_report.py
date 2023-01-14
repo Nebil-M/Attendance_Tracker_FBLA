@@ -50,12 +50,14 @@ class ReportController:
         selected = self.table.tree.selection()
         if selected:
             confirmation = tk.messagebox.askokcancel("Delete event(s)?",
-                                                     message="Are you sure you want to delete the selected prizes(s)?")
+                                                     message="Are you sure you want to delete the selected prize?")
             if confirmation:
                 for prize in selected:
                     prize_obj = prize_manager.get_prize(prize)
                     prize_manager.delete_prize(prize_obj)
-        self.update_table()
+            self.update_table()
+        else:
+            self.show_error(['\tNo Prize is selected.'])
 
     def edit_prize(self):
         self.table.tree.configure(selectmode='browse')
@@ -67,7 +69,6 @@ class ReportController:
             errors = []
             valid_name = name.replace('$', '')
             if not valid_name.replace(' ', '').isalnum():
-                print(valid_name.replace(' ', ''))
                 errors.append('\tThe name may only include letters spaces and numbers.')
             else:
                 prize.name = name
@@ -77,6 +78,9 @@ class ReportController:
                 prize.required_points = int(points)  # not updating in tree, fix
             self.show_error(errors) if errors else None
             self.update_table()
+        else:
+            self.show_error(['\tNo Prize is selected.'])
+
 
     def fill_edit_field(self):
         prize_name = self.table.tree.focus()
@@ -107,10 +111,6 @@ class ReportController:
             # clear Points
             for student in student_manager.students:
                 student.points = 0
-            # should attendees list be cleared as well?
-            # should Events be deleted as well?
-            for event in event_manager.events:
-                event.attendees = []
 
     def create_pdf_report(self):
         report_manager.idx = 0
@@ -119,7 +119,7 @@ class ReportController:
     def delete_report(self):
         current_report = report_manager.current()
         if current_report:
-            confirmation = tk.messagebox.askokcancel("Delete event(s)?",
+            confirmation = tk.messagebox.askokcancel("Delete report?",
                                                      message="Are you sure you want to delete the current report?")
             if confirmation:
                 report_manager.reports.remove(current_report)
@@ -298,7 +298,7 @@ class PrizeFrame(ct.CTkFrame):
         self.add_button.grid(row=3, column=0, sticky='NEWS', padx=pad_x, pady=pad_y, columnspan=2)
 
         self.delete_button = ct.CTkButton(self, text='Delete prize', font=font, corner_radius=corner_radius,
-                                          height=height, fg_color="red", hover_color="#800000")
+                                          height=height, fg_color="#990000", hover_color="#800000")
         self.delete_button.grid(row=4, column=0, sticky='NEWS', padx=pad_x, pady=pad_y, columnspan=2)
 
         self.edit_button = ct.CTkButton(self, text='Edit prize', font=font, corner_radius=corner_radius, height=height)
@@ -365,7 +365,7 @@ class Display(ct.CTkFrame):
         self.create_pdf_button.grid(row=1, column=1, sticky='NEWS', padx=10, pady=10)
 
         self.delete_report = ct.CTkButton(self, text='Delete Report', font=('arial', 15),
-                                          fg_color="red", hover_color="#800000")
+                                          fg_color="#990000", hover_color="#800000")
         self.delete_report.grid(row=2, column=1, sticky='NEWS', padx=10, pady=10)
 
 

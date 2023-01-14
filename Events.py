@@ -73,7 +73,7 @@ class EventManager:
 
     # Validation Methods
     def validate_id(self, id, event=None):
-        if id == "ID":
+        if id == "92180000 to 92189999":
             return "\tThe Event ID must be filled out."
         try:
             id = int(id)
@@ -101,6 +101,8 @@ class EventManager:
         return True
 
     def validate_date(self, date):
+        if date == 'In MM/DD/YYYY format':
+            return '\tDate must be filled out.'
         try:
             datetime.datetime.strptime(date, '%m/%d/%Y')
         except ValueError:
