@@ -49,7 +49,7 @@ class ReportController:
     def delete_prize(self):
         selected = self.table.tree.selection()
         if selected:
-            confirmation = tk.messagebox.askokcancel("Delete event(s)?",
+            confirmation = tk.messagebox.askokcancel("Delete report?",
                                                      message="Are you sure you want to delete the selected prize?")
             if confirmation:
                 for prize in selected:
@@ -298,7 +298,7 @@ class PrizeFrame(ct.CTkFrame):
         self.add_button.grid(row=3, column=0, sticky='NEWS', padx=pad_x, pady=pad_y, columnspan=2)
 
         self.delete_button = ct.CTkButton(self, text='Delete prize', font=font, corner_radius=corner_radius,
-                                          height=height, fg_color="#990000", hover_color="#800000")
+                                          height=height, fg_color='#b30000', hover_color='#750000')
         self.delete_button.grid(row=4, column=0, sticky='NEWS', padx=pad_x, pady=pad_y, columnspan=2)
 
         self.edit_button = ct.CTkButton(self, text='Edit prize', font=font, corner_radius=corner_radius, height=height)
@@ -365,7 +365,7 @@ class Display(ct.CTkFrame):
         self.create_pdf_button.grid(row=1, column=1, sticky='NEWS', padx=10, pady=10)
 
         self.delete_report = ct.CTkButton(self, text='Delete Report', font=('arial', 15),
-                                          fg_color="#990000", hover_color="#800000")
+                                          fg_color='#b30000', hover_color='#750000')
         self.delete_report.grid(row=2, column=1, sticky='NEWS', padx=10, pady=10)
 
 
@@ -438,7 +438,7 @@ class WinnersDisplay(ct.CTkFrame):
 
         ct.CTkLabel(self, text='Overall winner', font=('arial', font)).grid(row=0, column=0, sticky=sticky, padx=pad_x,
                                                                             pady=pad_y)
-        self.top_winner = ct.CTkTextbox(self, state="disabled", height=height)
+        self.top_winner = ct.CTkTextbox(self, font=('Consolas', 12), state="disabled", height=height)
         self.top_winner.grid(row=1, column=0, sticky='NEWS', padx=10, pady=10)
 
         ct.CTkLabel(self, text='Random winners', font=('arial', font)).grid(row=0, column=1, sticky=sticky, padx=pad_x,

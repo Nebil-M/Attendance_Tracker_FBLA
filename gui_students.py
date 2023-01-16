@@ -370,7 +370,7 @@ class EditTab(ct.CTkFrame):
         self.first_name = ct.CTkEntry(tab, placeholder_text="First name", width=160)
         self.last_name = ct.CTkEntry(tab, placeholder_text="Last name", width=160)
         self.letter_grade = ct.CTkOptionMenu(tab, values=self.letter_grade_options, width=160)
-        self.delete = ct.CTkButton(tab, text="Delete", width=80, fg_color="#990000", hover_color="#800000")
+        self.delete = ct.CTkButton(tab, text="Delete", width=80, fg_color='#b30000', hover_color='#750000')
         self.save = ct.CTkButton(tab, text="Save", width=80)
 
         # Grids the widgets and makes the labels
