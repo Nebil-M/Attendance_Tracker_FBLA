@@ -352,10 +352,17 @@ class PrizeTable(ct.CTkFrame):
                 self.tree.column(column, width=200, anchor='w', minwidth=230)
 
     def load(self, prizes):
+        # This sorts the prizes by points
+        list_of_prizes = []
         for prize in prizes:
             values = (prize.name, prize.required_points)
-            prize_id = prize.name
-            self.tree.insert("", 'end', prize_id, text=prize_id, values=values, tags=('ttk', 'simple'))
+            list_of_prizes.append(values)
+        list_of_prizes.sort(reverse=True, key=lambda x: x[1])
+
+        # Adds the prizes into treeview
+        for prize in list_of_prizes:
+            prize_id = prize[0]
+            self.tree.insert("", 'end', prize_id, text=prize_id, values=prize, tags=('ttk', 'simple'))
             self.tree.tag_configure('ttk', font=('Helvetica', 20, 'bold'), foreground='gray74', background='#343638')
 
 

@@ -248,10 +248,7 @@ class StudentsTable(ct.CTkFrame):
         # Styling for the treeview
         for column in columns:
             self.tree.heading(column, text=column)
-            if column == "Grade Level":
-                self.tree.column(column, width=70, anchor='center', minwidth=80)
-            else:
-                self.tree.column(column, width=180, anchor='center', minwidth=200)
+            self.tree.column(column, width=180, anchor='center', minwidth=200)
 
     # Do NOT use this function to add students. This only affects the treeview, not the actual data. Only use for testing.
     def add_student(self, student):

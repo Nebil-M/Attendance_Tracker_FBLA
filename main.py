@@ -58,10 +58,10 @@ class NavigationFrameTop(customtkinter.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         # images & Icons
         self.home_image = ct.CTkImage(Image.open("images/home_light.png"), size=(26, 26))
-        self.student_image = ct.CTkImage(Image.open("images/icons8-students-50.png"), size=(26, 26))
-        self.event_image = ct.CTkImage(Image.open("images/icons8-event-accepted-32.png"), size=(26, 26))
-        self.report_image = ct.CTkImage(Image.open("images/icons8-statistics-report-50.png"), size=(26, 26))
-        self.help_image = ct.CTkImage(Image.open("images/icons8-ask-question-50.png"), size=(26, 26))
+        self.student_image = ct.CTkImage(Image.open("images/students_light.png"), size=(26, 26))
+        self.event_image = ct.CTkImage(Image.open("images/events_light.png"), size=(26, 26))
+        self.report_image = ct.CTkImage(Image.open("images/report_light.png"), size=(26, 26))
+        self.help_image = ct.CTkImage(Image.open("images/help_light.png"), size=(26, 26))
 
         # create navigation frame
         self.navigation_frame = customtkinter.CTkFrame(self, corner_radius=10, fg_color='#343638')
@@ -224,11 +224,11 @@ class NavigationFrame(customtkinter.CTkFrame):
         self.navigation_frame_label.grid(row=0, column=0, padx=20, pady=20)
 
         # images & Icons
-        self.home_image = ct.CTkImage(Image.open("images/icons8-home-page-32.png"), size=(26, 26))
-        self.student_image = ct.CTkImage(Image.open("images/icons8-students-50.png"), size=(26, 26))
-        self.event_image = ct.CTkImage(Image.open("images/icons8-event-accepted-32.png"), size=(26, 26))
-        self.report_image = ct.CTkImage(Image.open("images/icons8-statistics-report-50.png"), size=(26, 26))
-        self.help_image = ct.CTkImage(Image.open("images/icons8-ask-question-50.png"), size=(26, 26))
+        self.home_image = ct.CTkImage(Image.open("images/home_light.png"), size=(26, 26))
+        self.student_image = ct.CTkImage(Image.open("images/students_light.png"), size=(26, 26))
+        self.event_image = ct.CTkImage(Image.open("images/events_light.png"), size=(26, 26))
+        self.report_image = ct.CTkImage(Image.open("images/report_light.png"), size=(26, 26))
+        self.help_image = ct.CTkImage(Image.open("images/help_light.png"), size=(26, 26))
 
 
         # Buttons to navigate
