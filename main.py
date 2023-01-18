@@ -56,9 +56,15 @@ class NavigationFrameTop(customtkinter.CTkFrame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=15)
         self.grid_columnconfigure(0, weight=1)
+        # images & Icons
+        self.home_image = ct.CTkImage(Image.open("images/icons8-home-page-32.png"), size=(26, 26))
+        self.student_image = ct.CTkImage(Image.open("images/icons8-students-50.png"), size=(26, 26))
+        self.event_image = ct.CTkImage(Image.open("images/icons8-event-accepted-32.png"), size=(26, 26))
+        self.report_image = ct.CTkImage(Image.open("images/icons8-statistics-report-50.png"), size=(26, 26))
+        self.help_image = ct.CTkImage(Image.open("images/icons8-ask-question-50.png"), size=(26, 26))
 
         # create navigation frame
-        self.navigation_frame = customtkinter.CTkFrame(self, corner_radius=0)
+        self.navigation_frame = customtkinter.CTkFrame(self, corner_radius=10, fg_color='#343638')
         self.navigation_frame.grid(row=0, column=0, sticky="new")
         self.navigation_frame.columnconfigure(6, weight=1)
 
@@ -69,35 +75,35 @@ class NavigationFrameTop(customtkinter.CTkFrame):
 
         # Buttons to navigate
         self.home_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10,
-                                                   text="Home",
+                                                   text="Home", image=self.home_image,
                                                    fg_color="transparent", text_color=("gray10", "gray90"),
                                                    hover_color=("gray70", "gray30"),
                                                    anchor="w", command=self.home_button_event)
         self.home_button.grid(row=0, column=1, sticky="ew")
 
         self.frame_2_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40,
-                                                      border_spacing=10, text="Students",
+                                                      border_spacing=10, text="Students", image=self.student_image,
                                                       fg_color="transparent", text_color=("gray10", "gray90"),
                                                       hover_color=("gray70", "gray30"),
                                                       anchor="w", command=self.frame_2_button_event)
         self.frame_2_button.grid(row=0, column=2, sticky="ew")
 
         self.frame_3_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40,
-                                                      border_spacing=10, text="Events",
+                                                      border_spacing=10, text="Events", image=self.event_image,
                                                       fg_color="transparent", text_color=("gray10", "gray90"),
                                                       hover_color=("gray70", "gray30"),
                                                       anchor="w", command=self.frame_3_button_event)
         self.frame_3_button.grid(row=0, column=3, sticky="ew")
 
         self.frame_4_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40,
-                                                      border_spacing=10, text="Report",
+                                                      border_spacing=10, text="Report", image=self.report_image,
                                                       fg_color="transparent", text_color=("gray10", "gray90"),
                                                       hover_color=("gray70", "gray30"),
                                                       anchor="w", command=self.frame_4_button_event)
         self.frame_4_button.grid(row=0, column=4, sticky="ew")
 
         self.frame_5_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40,
-                                                      border_spacing=10, text="Help",
+                                                      border_spacing=10, text="Help", image=self.help_image,
                                                       fg_color="transparent", text_color=("gray10", "gray90"),
                                                       hover_color=("gray70", "gray30"),
                                                       anchor="w", command=self.frame_5_button_event)

@@ -112,9 +112,6 @@ class ReportController:
             for student in student_manager.students:
                 student.points = 0
 
-    def create_pdf_report(self):
-        report_manager.idx = 0
-        self.update_display()
 
     def delete_report(self):
         current_report = report_manager.current()
@@ -201,7 +198,6 @@ class ReportController:
         toggle.right_toggle.configure(command=self.right_arrow)
 
         # display buttons
-        self.display.create_pdf_button.configure(command=self.create_pdf_report)
         self.display.delete_report.configure(command=self.delete_report)
 
         # prize buttons
@@ -359,14 +355,11 @@ class Display(ct.CTkFrame):
         self.student_list.grid(row=0, column=0, sticky='NEWS', padx=20, pady=10, columnspan=2)
 
         self.winner_display = WinnersDisplay(self)
-        self.winner_display.grid(row=1, column=0, sticky='NEWS', padx=20, pady=10, rowspan=2)
-
-        self.create_pdf_button = ct.CTkButton(self, text='Create PDF', font=('arial', 15))
-        self.create_pdf_button.grid(row=1, column=1, sticky='NEWS', padx=10, pady=10)
+        self.winner_display.grid(row=1, column=0, sticky='NEWS', padx=20, pady=10)
 
         self.delete_report = ct.CTkButton(self, text='Delete Report', font=('arial', 15),
                                           fg_color='#b30000', hover_color='#750000')
-        self.delete_report.grid(row=2, column=1, sticky='NEWS', padx=10, pady=10)
+        self.delete_report.grid(row=1, column=1, sticky='NEWS', padx=30, pady=40)
 
 
 class StudentList(ct.CTkFrame):
