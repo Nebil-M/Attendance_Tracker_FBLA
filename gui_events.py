@@ -314,10 +314,18 @@ class EventsTable(ct.CTkFrame):
 
     # loads Events to treeview. called in EventController
     def load_events(self, events):
+        # Sorts the events by date
+        list_of_events = []
         for event in events:
-            values = (event.name, event.date, event.nature)
-            event_id = str(event.event_id)
-            self.tree.insert("", 'end', event_id, text=event_id, values=values, tags=('ttk', 'simple', 'events'))
+            values = (event.event_id, event.name, event.date, event.nature)
+            list_of_events.append(values)
+        # x[2] refers to the date. [6:9] gets the year, [0:1] gets the month, and [3:4] gets the day.
+        list_of_events.sort(key=lambda e: (e[2][6:10], e[2][0:2], e[2][3:5]))
+
+        # Adds the events into the treeview
+        for event in list_of_events:
+            event_id = str(event[0])
+            self.tree.insert("", 'end', event_id, text=event_id, values=event[1:], tags=('ttk', 'simple', 'events'))
             self.tree.tag_configure('ttk', font=('Helvetica', 20, 'bold'), foreground='gray74', background='#343638')
 
 
