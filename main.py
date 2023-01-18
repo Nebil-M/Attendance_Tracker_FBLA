@@ -15,7 +15,7 @@ class App(customtkinter.CTk):
         self.title("Attendance Tracker")
         customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
         customtkinter.set_default_color_theme("dark-blue")
-        NavigationFrame(self).grid(padx=0, pady=0, row=0, column=0, sticky="NEWS")
+        NavigationFrameTop(self).grid(padx=0, pady=0, row=0, column=0, sticky="NEWS")
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
 
@@ -57,7 +57,7 @@ class NavigationFrameTop(customtkinter.CTkFrame):
         self.grid_rowconfigure(1, weight=15)
         self.grid_columnconfigure(0, weight=1)
         # images & Icons
-        self.home_image = ct.CTkImage(Image.open("images/icons8-home-page-32.png"), size=(26, 26))
+        self.home_image = ct.CTkImage(Image.open("images/home_light.png"), size=(26, 26))
         self.student_image = ct.CTkImage(Image.open("images/icons8-students-50.png"), size=(26, 26))
         self.event_image = ct.CTkImage(Image.open("images/icons8-event-accepted-32.png"), size=(26, 26))
         self.report_image = ct.CTkImage(Image.open("images/icons8-statistics-report-50.png"), size=(26, 26))

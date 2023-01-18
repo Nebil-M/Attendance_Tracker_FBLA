@@ -193,6 +193,9 @@ class EventController:
         self.events_table.tree.delete(*self.events_table.tree.get_children())
         self.events_table.load_events(self.model.events)
 
+        # Saves data pickle file
+        self.student_model.save_data()
+        self.model.save_data()
     def update_view_tab(self):
         # delete any non existing students from any attendee lists
         real_ids = [student.student_id for student in self.student_model.students]
@@ -223,6 +226,10 @@ class EventController:
         view_tab.description.configure(state="disable")
 
         view_tab.student_list.var.set(attendee_names)
+
+        # Saves data pickle file
+        self.student_model.save_data()
+        self.model.save_data()
 
     # All bindings and command configs to widgets are done here
     def widget_bindings(self):
