@@ -128,6 +128,12 @@ class ReportController:
         self.table.tree.delete(*self.table.tree.get_children())
         self.table.load(prize_manager.prizes)
 
+        # Saves data
+        student_manager.save_data()
+        event_manager.save_data()
+        report_manager.save_data()
+        prize_manager.save_data()
+
     def update_display(self):
         # points per student
         current_report = report_manager.current()
@@ -188,6 +194,12 @@ class ReportController:
             self.student_list.tenth_grade.var.set([])
             self.student_list.eleventh_grade.var.set([])
             self.student_list.twelfth_grade.var.set([])
+
+        # Saves data
+        student_manager.save_data()
+        event_manager.save_data()
+        report_manager.save_data()
+        prize_manager.save_data()
 
     # all bindings and commands
     def bindings(self):
