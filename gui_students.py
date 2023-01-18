@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 import customtkinter as ct
 from student import student_manager
+from Events import event_manager
 from func_utils import *
 
 
@@ -37,7 +38,8 @@ class StudentController:
 
             # Saves the student into the pkl file
             # commented out for testing
-            # student_manager.save_data()
+            student_manager.save_data()
+            event_manager.save_data()
 
             # Updates the treeview with the new data
             self.update_students_table()
@@ -71,7 +73,9 @@ class StudentController:
 
             # Saves the student into the pkl file
             # commented out for testing
-            # student_manager.save_data()
+            student_manager.save_data()
+            event_manager.save_data()
+
             # Updates the treeview with the new data
             self.update_students_table()
             # Re-selects the student
@@ -102,7 +106,8 @@ class StudentController:
 
                 # Saves the data into the pkl file
                 # commented out for testing
-                # student_manager.save_data()
+                student_manager.save_data()
+                event_manager.save_data()
                 # Updates the treeview with the new data
                 self.update_students_table()
                 # Cleans out the entries once the data is updated
