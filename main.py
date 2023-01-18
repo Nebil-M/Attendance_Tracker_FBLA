@@ -1,5 +1,6 @@
 import customtkinter
 import customtkinter as ct
+from PIL import Image
 from gui_events import *
 from gui_report import *
 from gui_home import HomeFrame, HomeController
@@ -207,7 +208,7 @@ class NavigationFrame(customtkinter.CTkFrame):
         self.grid_columnconfigure(1, weight=15)
 
         # create navigation frame
-        self.navigation_frame = customtkinter.CTkFrame(self, corner_radius=0)
+        self.navigation_frame = customtkinter.CTkFrame(self, corner_radius=10, fg_color='#343638')
         self.navigation_frame.grid(row=0, column=0, sticky="nws")
         self.navigation_frame.rowconfigure(6, weight=1)
 
@@ -216,37 +217,45 @@ class NavigationFrame(customtkinter.CTkFrame):
                                                              font=customtkinter.CTkFont(size=15, weight="bold"))
         self.navigation_frame_label.grid(row=0, column=0, padx=20, pady=20)
 
+        # images & Icons
+        self.home_image = ct.CTkImage(Image.open("images/icons8-home-page-32.png"), size=(26, 26))
+        self.student_image = ct.CTkImage(Image.open("images/icons8-students-50.png"), size=(26, 26))
+        self.event_image = ct.CTkImage(Image.open("images/icons8-event-accepted-32.png"), size=(26, 26))
+        self.report_image = ct.CTkImage(Image.open("images/icons8-statistics-report-50.png"), size=(26, 26))
+        self.help_image = ct.CTkImage(Image.open("images/icons8-ask-question-50.png"), size=(26, 26))
+
+
         # Buttons to navigate
         self.home_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10,
-                                                   text="Home",
+                                                   text="Home", image=self.home_image,
                                                    fg_color="transparent", text_color=("gray10", "gray90"),
                                                    hover_color=("gray70", "gray30"),
                                                    anchor="w", command=self.home_button_event)
         self.home_button.grid(row=1, column=0, sticky="ew")
 
         self.frame_2_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40,
-                                                      border_spacing=10, text="Students",
+                                                      border_spacing=10, text="Students", image=self.student_image,
                                                       fg_color="transparent", text_color=("gray10", "gray90"),
                                                       hover_color=("gray70", "gray30"),
                                                       anchor="w", command=self.frame_2_button_event)
         self.frame_2_button.grid(row=2, column=0, sticky="ew")
 
         self.frame_3_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40,
-                                                      border_spacing=10, text="Events",
+                                                      border_spacing=10, text="Events", image=self.event_image,
                                                       fg_color="transparent", text_color=("gray10", "gray90"),
                                                       hover_color=("gray70", "gray30"),
                                                       anchor="w", command=self.frame_3_button_event)
         self.frame_3_button.grid(row=3, column=0, sticky="ew")
 
         self.frame_4_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40,
-                                                      border_spacing=10, text="Report",
+                                                      border_spacing=10, text="Report", image=self.report_image,
                                                       fg_color="transparent", text_color=("gray10", "gray90"),
                                                       hover_color=("gray70", "gray30"),
                                                       anchor="w", command=self.frame_4_button_event)
         self.frame_4_button.grid(row=4, column=0, sticky="ew")
 
         self.frame_5_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40,
-                                                      border_spacing=10, text="Help",
+                                                      border_spacing=10, text="Help", image=self.help_image,
                                                       fg_color="transparent", text_color=("gray10", "gray90"),
                                                       hover_color=("gray70", "gray30"),
                                                       anchor="w", command=self.frame_5_button_event)
@@ -263,23 +272,23 @@ class NavigationFrame(customtkinter.CTkFrame):
         # self.appearance_mode_menu.grid(row=7, column=0, padx=20, pady=20, sticky="s")
 
         # create home frame
-        self.home_frame = HomeFrame(self)
+        self.home_frame = HomeFrame(self, fg_color='transparent')
         self.HC = HomeController(self.home_frame)
 
         # create second frame
-        self.second_frame = s2.StudentsFrame(self)
+        self.second_frame = s2.StudentsFrame(self, fg_color='transparent')
         self.SC = s2.StudentController(self.second_frame)
 
         # create third frame
-        self.third_frame = EventsFrame(self)
+        self.third_frame = EventsFrame(self, fg_color='transparent')
         self.EC = EventController(self.third_frame)
 
         # create fourth frame
-        self.fourth_frame = ReportFrame(self)
+        self.fourth_frame = ReportFrame(self, fg_color='transparent')
         self.RC = ReportController(self.fourth_frame)
 
         # create fifth Frame
-        self.fifth_frame = gui_help.HelpMenu(self)
+        self.fifth_frame = gui_help.HelpMenu(self, fg_color='transparent')
 
         # select default frame
         self.select_frame_by_name("home")
