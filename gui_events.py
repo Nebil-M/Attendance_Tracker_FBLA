@@ -47,7 +47,8 @@ class EventController:
             if confirmation:
                 # You can select Multiple events to delete
                 for itm in self.events_table.tree.selection():
-                    self.model.delete_event(itm)
+                    if self.model.get_event(itm):
+                        self.model.delete_event(itm)
                 self.update_events_table()
         else:
             self.error_show(validation)
@@ -120,7 +121,6 @@ class EventController:
         else:
             self.error_show(['\tNo student selected.'])
 
-
     def delete_student_view(self, event=None):
         indexes = self.event_tabs.view_tab.student_list.curselection()
         event = self.model.get_event(self.events_table.tree.focus())
@@ -190,12 +190,15 @@ class EventController:
     # updates the treeview each time it is called. Call it anytime the model is changed.
     # It deletes all items from treeview and repopulates them
     def update_events_table(self):
-        self.events_table.tree.delete(*self.events_table.tree.get_children())
+        tree = self.events_table.tree
+        tree.delete(*tree.get_children())
+
         self.events_table.load_events(self.model.events)
 
         # Saves data pickle file
-        self.student_model.save_data()
-        self.model.save_data()
+        # self.student_model.save_data()
+        # self.model.save_data()
+
     def update_view_tab(self):
         if self.model.events:
             # delete any non existing students from any attendee lists
@@ -217,20 +220,22 @@ class EventController:
                 event = self.model.get_event(item)
                 self.events_table.tree.focus(item)
                 self.events_table.tree.selection_set(item)
-            attendee_names = [f'{attendee.first_name} {attendee.last_name}, {attendee.student_id}'
-                              for attendee in event.attendees]
-            view_tab.event_name.var.set(event.name)
 
-            view_tab.description.configure(state="normal")
-            view_tab.description.delete("0.0", 'end')
-            view_tab.description.insert('end', event.event_description)
-            view_tab.description.configure(state="disable")
+            if event:
+                attendee_names = [f'{attendee.first_name} {attendee.last_name}, {attendee.student_id}'
+                                  for attendee in event.attendees]
+                view_tab.event_name.var.set(event.name)
 
-            view_tab.student_list.var.set(attendee_names)
+                view_tab.description.configure(state="normal")
+                view_tab.description.delete("0.0", 'end')
+                view_tab.description.insert('end', event.event_description)
+                view_tab.description.configure(state="disable")
+
+                view_tab.student_list.var.set(attendee_names)
 
         # Saves data pickle file
-        self.student_model.save_data()
-        self.model.save_data()
+        # self.student_model.save_data()
+        # self.model.save_data()
 
     # All bindings and command configs to widgets are done here
     def widget_bindings(self):
@@ -287,7 +292,7 @@ class EventsTable(ct.CTkFrame):
                     font=('Helvetica', 20, 'bold'), fieldbackground='#343638')
 
         # Initializing treeview, and scroller
-        self.tree = ttk.Treeview(self) # decide later whether to use selectmode="browse" or not
+        self.tree = ttk.Treeview(self)  # decide later whether to use selectmode="browse" or not
         self.scroll_y = ct.CTkScrollbar(self, orientation="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=self.scroll_y.set)
 
@@ -306,6 +311,7 @@ class EventsTable(ct.CTkFrame):
         self.tree.column("#0", width=200, anchor='center', minwidth=200)
         columns = ("Event Name", 'Date', 'Nature')
         self.tree["columns"] = columns
+
         for column in columns:
             self.tree.heading(column, text=column)
             if column == 'Event Name':
@@ -315,18 +321,38 @@ class EventsTable(ct.CTkFrame):
 
     # loads Events to treeview. called in EventController
     def load_events(self, events):
+        # Setting up parent nodes
+        curr_values = ("Current Events", '', '')
+        curr = self.tree.insert("", 'end', 0, text='', values=curr_values, tags=('folder'))
+        archive_values = ("Archived Events", '', '')
+        archive = self.tree.insert("", 'end', 1, text='', values=archive_values, tags=('folder'))
+        self.tree.tag_configure('folder', font=('Helvetica', 25, 'bold', 'italic'), foreground='gray74', background='#343638')
+        self.tree.item(curr, open=tk.TRUE)
+
         # Sorts the events by date
-        list_of_events = []
+        list_of_current_events = []
+        list_of_archived_events = []
         for event in events:
             values = (event.event_id, event.name, event.date, event.nature)
-            list_of_events.append(values)
+            if event.is_archived:
+                list_of_archived_events.append(values)
+            else:
+                list_of_current_events.append(values)
+
         # x[2] refers to the date. [6:9] gets the year, [0:1] gets the month, and [3:4] gets the day.
-        list_of_events.sort(key=lambda e: (e[2][6:10], e[2][0:2], e[2][3:5]))
+        list_of_current_events.sort(key=lambda e: (e[2][6:10], e[2][0:2], e[2][3:5]))
+        list_of_archived_events.sort(key=lambda e: (e[2][6:10], e[2][0:2], e[2][3:5]))
 
         # Adds the events into the treeview
-        for event in list_of_events:
+        for event in list_of_current_events:
             event_id = str(event[0])
-            self.tree.insert("", 'end', event_id, text=event_id, values=event[1:], tags=('ttk', 'simple', 'events'))
+            self.tree.insert(curr, 'end', event_id, text=event_id, values=event[1:], tags=('ttk', 'simple', 'events'))
+            self.tree.tag_configure('ttk', font=('Helvetica', 20, 'bold'), foreground='gray74', background='#343638')
+
+        for event in list_of_archived_events:
+            event_id = str(event[0])
+            self.tree.insert(archive, 'end', event_id, text=event_id, values=event[1:],
+                             tags=('ttk', 'simple', 'events'))
             self.tree.tag_configure('ttk', font=('Helvetica', 20, 'bold'), foreground='gray74', background='#343638')
 
 
@@ -430,7 +456,7 @@ class AddTab(ct.CTkFrame):
             row=2, column=1, sticky='NEWS', padx=10, pady=2)
         self.nature = ct.CTkEntry(self, placeholder_text='Nature', font=('arial', font))
         self.description = ct.CTkTextbox(self, height=100, font=('arial', font))
-        self.add = ct.CTkButton(self, text="Add Event", font=('arial', font+5))
+        self.add = ct.CTkButton(self, text="Add Event", font=('arial', font + 5))
 
         # add_default text for description box
         self.description.insert('0.0', 'Description of the event')
@@ -441,8 +467,7 @@ class AddTab(ct.CTkFrame):
         self.id.grid(row=3, column=0, sticky='NEWS', padx=pad, pady=(0, pad + 10))
         self.nature.grid(row=3, column=1, sticky='NEWS', padx=pad, pady=(0, pad + 10))
         self.description.grid(row=4, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
-        self.add.grid(row=5, sticky='NEWS', padx=pad+40, pady=pad+30, columnspan=2, rowspan=2)
-
+        self.add.grid(row=5, sticky='NEWS', padx=pad + 40, pady=pad + 30, columnspan=2, rowspan=2)
 
         # applying a weight of 1 to all cells
         limited_weight_cells(self)
@@ -456,7 +481,6 @@ class AddTab(ct.CTkFrame):
         self.rowconfigure(3, weight=0, minsize=90)
         self.rowconfigure(5, weight=0, minsize=90)
         self.rowconfigure(6, weight=0, minsize=90)
-
 
     def add_vars_to_entries(self):
         self.name.var = tk.StringVar()
@@ -489,8 +513,9 @@ class EditTab(ct.CTkFrame):
             row=2, column=1, sticky='NEWS', padx=10, pady=2)
         self.nature = ct.CTkEntry(self, placeholder_text='Nature', font=('arial', font))
         self.description = ct.CTkTextbox(self, height=100, font=('arial', font))
-        self.edit_button = ct.CTkButton(self, text="Edit Event", font=('arial', font+5), anchor='center')
-        self.delete = ct.CTkButton(self, text="Delete Event", font=('arial', font+5), fg_color='#b30000', hover_color='#750000')
+        self.edit_button = ct.CTkButton(self, text="Edit Event", font=('arial', font + 5), anchor='center')
+        self.delete = ct.CTkButton(self, text="Delete Event", font=('arial', font + 5), fg_color='#b30000',
+                                   hover_color='#750000')
 
         # add_default text for description box
         self.description.insert('0.0', 'Description of the event')
@@ -502,8 +527,8 @@ class EditTab(ct.CTkFrame):
         self.id.grid(row=3, column=0, sticky='NEWS', padx=pad, pady=(0, pad + 10))
         self.nature.grid(row=3, column=1, sticky='NEWS', padx=pad, pady=(0, pad + 10))
         self.description.grid(row=4, sticky='NEWS', padx=pad, pady=pad, columnspan=2)
-        self.edit_button.grid(row=5, sticky='NEWS', padx=pad+40, pady=pad, columnspan=2)
-        self.delete.grid(row=6, sticky='NEWS', padx=pad+40, pady=pad, columnspan=2)
+        self.edit_button.grid(row=5, sticky='NEWS', padx=pad + 40, pady=pad, columnspan=2)
+        self.delete.grid(row=6, sticky='NEWS', padx=pad + 40, pady=pad, columnspan=2)
 
         # applying a weight of 1 to all cells
         limited_weight_cells(self)

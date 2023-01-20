@@ -1,6 +1,7 @@
 import pickle
 import datetime
 
+
 class Event:
     def __init__(self, event_id: int, name: str, date: str, nature: str, event_description: str):
         self.event_id = event_id
@@ -9,6 +10,8 @@ class Event:
         self.event_description = event_description
         self.nature = nature
         self.attendees = []
+
+        self.is_archived = False
 
     # Using weakreferences to store attendees so that they are deleted when they are deleted from studentmanager list
     # one can call the weakrefernce to access the object by adding a () at the end of the weakreference
@@ -29,6 +32,7 @@ class Event:
 
     def __repr__(self):
         return f"Event({self.event_id}, {self.name}, {self.date}, nature: {self.nature})"
+
 
 class EventManager:
     def __init__(self):
@@ -80,6 +84,7 @@ class EventManager:
         except ValueError:
             return "\tThe Event ID may only include whole numbers."
 
+
         ids = [event.event_id for event in self.events]
         if not 92180000 <= id <= 92189999:
             return "\tThe Event ID must be an 8 digit number starting with 9218."
@@ -116,5 +121,6 @@ class EventManager:
         if not nature.replace(' ', '').isalpha():
             return '\tThe Nature may only include letters and spaces.'
         return True
+
 
 event_manager = EventManager()
