@@ -74,7 +74,7 @@ class StudentManager:
         return sorted_students
 
     def get_winner(self):
-        student_with_most_points = max(self.students, key=lambda student: student.points)
+        student_with_most_points = max(self.students, key=lambda student: student.points, default=None)
         return student_with_most_points
 
     def get_random_winners(self, exclude=[]):
@@ -90,6 +90,7 @@ class StudentManager:
 
         return grade_9_winner, grade_10_winner, grade_11_winner, grade_12_winner
 
+    # Not Used Delete later
     def get_prize(self, student):
         if student is None:
             return "No winners from this grade"
