@@ -155,18 +155,22 @@ class ReportController:
             self.view.date.configure(text='\nDate: ' + current_report.date)
             # winners
             top_winner = current_report.top_winner
-            top_winner_string = f'{top_winner.first_name} {top_winner.last_name}:   {prize_manager.award_prize(top_winner)}'
+            top_prize = prize_manager.award_prize(top_winner)
+            if top_winner and top_prize:
+                top_winner_string = f'{top_winner.first_name} {top_winner.last_name}:   {top_prize}'
+            else:
+                top_winner_string = ''
             self.display.winner_display.top_winner.configure(state='normal')
             self.display.winner_display.top_winner.delete("0.0", 'end')
             self.display.winner_display.top_winner.insert('0.0', top_winner_string)
             self.display.winner_display.top_winner.configure(state='disabled')
             # random winners
             random_winners = current_report.random_winners
-            if random_winners:
-                random_winners_list = [
-                    (f'{student.first_name} {student.last_name}:', prize_manager.award_prize(student).name)
-                    for student in random_winners if student]
-                random_winners_string = ''
+            random_winners_list = [
+                (f'{student.first_name} {student.last_name}:', prize_manager.award_prize(student).name)
+                for student in random_winners if student and prize_manager.award_prize(student)]
+            random_winners_string = ''
+            if random_winners_list:
                 longest = max(random_winners_list, key=lambda st: len(st[0]))
                 for s in random_winners_list:
                     l = len(longest[0])
@@ -174,10 +178,11 @@ class ReportController:
                     sp = l + m
                     white_s = (' ' * (sp - 12))
                     random_winners_string += s[0] + white_s + s[1] + '\n'
-                self.display.winner_display.random_winners.configure(state='normal')
-                self.display.winner_display.random_winners.delete("0.0", 'end')
-                self.display.winner_display.random_winners.insert('0.0', random_winners_string)
-                self.display.winner_display.random_winners.configure(state='disabled')
+            self.display.winner_display.random_winners.configure(state='normal')
+            self.display.winner_display.random_winners.delete("0.0", 'end')
+            self.display.winner_display.random_winners.insert('0.0', random_winners_string)
+            self.display.winner_display.random_winners.configure(state='disabled')
+
         else:
             self.view.name.configure(text='\nName')
             self.view.date.configure(text='\nDate')

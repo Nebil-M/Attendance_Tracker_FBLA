@@ -44,7 +44,7 @@ class PrizeManager:
         if student is None:
             return "No winners from this grade"
         possible_prizes = [prize for prize in self.prizes if prize.required_points <= student.points]
-        best_possible_prize = max(possible_prizes, key=lambda prize: prize.required_points)
+        best_possible_prize = max(possible_prizes, key=lambda prize: prize.required_points, default=None)
         return best_possible_prize
 
 
@@ -55,7 +55,9 @@ class Report:
         self.date = str(datetime.date.today())
 
         self.top_winner = copy.copy(student_manager.get_winner())
-        self.random_winners = list(map(copy.copy, student_manager.get_random_winners([self.top_winner.student_id])))
+
+        winner_id = self.top_winner.student_id if self.top_winner else None
+        self.random_winners = list(map(copy.copy, student_manager.get_random_winners([winner_id])))
         self.winners = self.random_winners + [self.top_winner, ]
 
         self.ninth_graders = list(map(copy.copy, student_manager.get_grade_students(9)))
@@ -76,7 +78,7 @@ class Report:
 class ReportManager:
     def __init__(self):
         self.reports = []
-        #self.load_data()
+        self.load_data()
         self.idx = 0
 
     def create_report(self, name: str = "NoName"):

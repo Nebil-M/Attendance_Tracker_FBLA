@@ -197,35 +197,36 @@ class EventController:
         self.student_model.save_data()
         self.model.save_data()
     def update_view_tab(self):
-        # delete any non existing students from any attendee lists
-        real_ids = [student.student_id for student in self.student_model.students]
-        for event in event_manager.events:
-            event.attendees = [attendee for attendee in event.attendees if attendee.student_id in real_ids]
+        if self.model.events:
+            # delete any non existing students from any attendee lists
+            real_ids = [student.student_id for student in self.student_model.students]
+            for event in event_manager.events:
+                event.attendees = [attendee for attendee in event.attendees if attendee.student_id in real_ids]
 
-        values = [f'{s.first_name} {s.last_name}, {s.student_id}' for s in self.student_model.students]
+            values = [f'{s.first_name} {s.last_name}, {s.student_id}' for s in self.student_model.students]
 
-        self.event_tabs.view_tab.student_select.configure(values=values)
-        self.event_tabs.view_tab.student_select.var.set(value="")
+            self.event_tabs.view_tab.student_select.configure(values=values)
+            self.event_tabs.view_tab.student_select.var.set(value="")
 
-        # Custom view_select
-        selected_item = self.events_table.tree.focus()
-        view_tab = self.event_tabs.view_tab
-        event = self.model.get_event(selected_item)
-        if not event:
-            item = self.events_table.tree.get_children()[0]
-            event = self.model.get_event(item)
-            self.events_table.tree.focus(item)
-            self.events_table.tree.selection_set(item)
-        attendee_names = [f'{attendee.first_name} {attendee.last_name}, {attendee.student_id}'
-                          for attendee in event.attendees]
-        view_tab.event_name.var.set(event.name)
+            # Custom view_select
+            selected_item = self.events_table.tree.focus()
+            view_tab = self.event_tabs.view_tab
+            event = self.model.get_event(selected_item)
+            if not event:
+                item = self.events_table.tree.get_children()[0]
+                event = self.model.get_event(item)
+                self.events_table.tree.focus(item)
+                self.events_table.tree.selection_set(item)
+            attendee_names = [f'{attendee.first_name} {attendee.last_name}, {attendee.student_id}'
+                              for attendee in event.attendees]
+            view_tab.event_name.var.set(event.name)
 
-        view_tab.description.configure(state="normal")
-        view_tab.description.delete("0.0", 'end')
-        view_tab.description.insert('end', event.event_description)
-        view_tab.description.configure(state="disable")
+            view_tab.description.configure(state="normal")
+            view_tab.description.delete("0.0", 'end')
+            view_tab.description.insert('end', event.event_description)
+            view_tab.description.configure(state="disable")
 
-        view_tab.student_list.var.set(attendee_names)
+            view_tab.student_list.var.set(attendee_names)
 
         # Saves data pickle file
         self.student_model.save_data()
