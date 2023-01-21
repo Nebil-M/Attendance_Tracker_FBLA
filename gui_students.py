@@ -328,7 +328,7 @@ class AddTab(ct.CTkFrame):
         ct.CTkLabel(tab, text="Letter grade").grid(row=9, column=0, sticky="W")
         self.letter_grade.grid(row=10, column=0, sticky="W", pady=pad)
         # the save button's y padding is very high, to make it appear in the same place in both the add and edit tab.
-        self.save.grid(row=11, column=0, sticky="SW", pady=(105, 10), padx=(200, 0))
+        self.save.grid(row=11, column=0, sticky="SW", pady=(57, 10), padx=(200, 0))
 
         # applying a weight of 1 to all cells
         limited_weight_cells(self)
@@ -377,10 +377,10 @@ class EditTab(ct.CTkFrame):
 
         # Grids the widgets and makes the labels
         pad = (0, 10)
-        ct.CTkLabel(tab, text="Edit student details:").grid(row=0, column=0, sticky="W", pady=10)
+        ct.CTkLabel(tab, text="Edit student details:").grid(row=0, column=0, sticky="W", pady=(10,0))
         ct.CTkLabel(tab, text="Please double click on the left to select a student.").grid(row=1, column=0, sticky="W",
                                                                                            columnspan=2)
-        self.label_student_selected.grid(row=2, column=0, sticky="W", pady=(10, 0))
+        self.label_student_selected.grid(row=2, column=0, sticky="W", pady=(0, 0))
         ct.CTkLabel(tab, text="Student ID").grid(row=4, column=0, sticky="W", pady=(10, 0))
         self.student_id.grid(row=5, column=0, sticky="W", pady=pad)
         ct.CTkLabel(tab, text="Grade level").grid(row=6, column=0, sticky="W")
@@ -391,8 +391,8 @@ class EditTab(ct.CTkFrame):
         self.last_name.grid(row=11, column=0, sticky="W", pady=pad)
         ct.CTkLabel(tab, text="Letter grade").grid(row=12, column=0, sticky="W")
         self.letter_grade.grid(row=13, column=0, sticky="W", pady=pad)
-        self.delete.grid(row=14, column=0, sticky="W", pady=(40, 10))
-        self.save.grid(row=14, column=1, sticky="SW", pady=(40, 10), padx=(40, 0))
+        self.delete.grid(row=14, column=0, sticky="W", pady=(10, 10))
+        self.save.grid(row=14, column=1, sticky="SW", pady=(10, 10), padx=(40, 0))
 
         # add vars to all entries
         self.add_vars_to_entries()

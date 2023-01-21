@@ -64,7 +64,7 @@ class EventManager:
         return sport_events
 
     def get_non_sport_events(self):
-        non_sport_events = [event for event in self.events if not event.nature != 'Sport']
+        non_sport_events = [event for event in self.events if not event.nature == 'Sport']
         return non_sport_events
 
     def load_data(self, file_name='events'):
