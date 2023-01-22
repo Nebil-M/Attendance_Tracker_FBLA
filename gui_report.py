@@ -49,7 +49,7 @@ class ReportController:
     def delete_prize(self):
         selected = self.table.tree.selection()
         if selected:
-            confirmation = tk.messagebox.askokcancel("Delete report?",
+            confirmation = tk.messagebox.askokcancel("Delete prize?",
                                                      message="Are you sure you want to delete the selected prize?")
             if confirmation:
                 for prize in selected:
