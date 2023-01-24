@@ -90,16 +90,15 @@ class EventController:
         view_tab = self.event_tabs.view_tab
         event = self.model.get_event(selected_item)
         if event:
-            if view_tab == self.event_tabs.winfo_children()[-1]:
-                attendee_names = [f'{attendee.first_name} {attendee.last_name}, {attendee.student_id}'
-                                  for attendee in event.attendees]
-                view_tab.event_name.var.set(event.name)
-                view_tab.description.configure(state="normal")
-                view_tab.description.delete("0.0", 'end')
-                view_tab.description.insert('end', event.event_description)
-                view_tab.description.configure(state="disabled")
+            attendee_names = [f'{attendee.first_name} {attendee.last_name}, {attendee.student_id}'
+                              for attendee in event.attendees]
+            view_tab.event_name.var.set(event.name)
+            view_tab.description.configure(state="normal")
+            view_tab.description.delete("0.0", 'end')
+            view_tab.description.insert('end', event.event_description)
+            view_tab.description.configure(state="disabled")
 
-                view_tab.student_list.var.set(attendee_names)
+            view_tab.student_list.var.set(attendee_names)
 
     def add_student_view(self, event=None):
         typed = self.event_tabs.view_tab.student_select.var.get()
@@ -326,7 +325,8 @@ class EventsTable(ct.CTkFrame):
         curr = self.tree.insert("", 'end', 0, text='', values=curr_values, tags=('folder'))
         archive_values = ("Archived Events", '', '')
         archive = self.tree.insert("", 'end', 1, text='', values=archive_values, tags=('folder'))
-        self.tree.tag_configure('folder', font=('Helvetica', 25, 'bold', 'italic'), foreground='gray74', background='#343638')
+        self.tree.tag_configure('folder', font=('Helvetica', 25, 'bold', 'italic'), foreground='gray74',
+                                background='#343638')
         self.tree.item(curr, open=tk.TRUE)
 
         # Sorts the events by date
@@ -398,28 +398,28 @@ class EventTools(ct.CTkFrame):
         height = 40
         anchor = "center"
 
-        nav_add = ct.CTkButton(self.nav_frame, text="Add event", command=lambda: self.show_frame(AddTab, nav_add),
-                               border_width=border_width, border_color=border_color, corner_radius=corner_radius,
-                               fg_color=fg_color, text_color=text_color, font=font,
-                               hover_color=hover_color, height=height,
-                               anchor=anchor, )
-        nav_add.grid(row=0, column=0, sticky='NEWS')
+        self.nav_add = ct.CTkButton(self.nav_frame, text="Add event",
+                                    command=lambda: self.show_frame(AddTab, self.nav_add),
+                                    border_width=border_width, border_color=border_color, corner_radius=corner_radius,
+                                    fg_color=fg_color, text_color=text_color, font=font,
+                                    hover_color=hover_color, height=height, anchor=anchor, )
+        self.nav_add.grid(row=0, column=0, sticky='NEWS')
 
-        nav_del = ct.CTkButton(self.nav_frame, text="Edit event", command=lambda: self.show_frame(EditTab, nav_del),
-                               border_width=border_width, border_color=border_color, corner_radius=corner_radius,
-                               fg_color=fg_color, text_color=text_color, font=font,
-                               hover_color=hover_color, height=height,
-                               anchor=anchor, )
-        nav_del.grid(row=0, column=1, sticky='NEWS')
+        self.nav_del = ct.CTkButton(self.nav_frame, text="Edit event",
+                                    command=lambda: self.show_frame(EditTab, self.nav_del),
+                                    border_width=border_width, border_color=border_color, corner_radius=corner_radius,
+                                    fg_color=fg_color, text_color=text_color, font=font,
+                                    hover_color=hover_color, height=height, anchor=anchor, )
+        self.nav_del.grid(row=0, column=1, sticky='NEWS')
 
-        nav_view = ct.CTkButton(self.nav_frame, text="Attendance", command=lambda: self.show_frame(ViewTab, nav_view),
-                                border_width=border_width, border_color=border_color, corner_radius=corner_radius,
-                                fg_color=fg_color, text_color=text_color, font=font,
-                                hover_color=hover_color, height=height,
-                                anchor=anchor, )
-        nav_view.grid(row=0, column=2, sticky='NEWS')
+        self.nav_view = ct.CTkButton(self.nav_frame, text="Attendance",
+                                     command=lambda: self.show_frame(ViewTab, self.nav_view),
+                                     border_width=border_width, border_color=border_color, corner_radius=corner_radius,
+                                     fg_color=fg_color, text_color=text_color, font=font,
+                                     hover_color=hover_color, height=height, anchor=anchor, )
+        self.nav_view.grid(row=0, column=2, sticky='NEWS')
 
-        self.show_frame(AddTab, nav_add)
+        self.show_frame(AddTab, self.nav_add)
 
         # Add tabs to self
         self.add_tab = self.frames[AddTab]

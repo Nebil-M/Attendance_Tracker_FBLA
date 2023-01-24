@@ -15,7 +15,7 @@ class HomeController:
     def __init__(self, view):
         self.view = view
         # vars
-        self.number_frame = self.view.number_frame
+        self.popular_frame = self.view.popular_frame
         self.points_frame = self.view.points_frame
         self.graph = self.view.graph
 
@@ -24,24 +24,23 @@ class HomeController:
 
     def update_graph(self):
         grades = [9, 10, 11, 12]
-        points_per_grade = [sum([student.points for student in student_manager.get_grade_students(grade)]) for grade in grades]
+        points_per_grade = [sum([student.points for student in student_manager.get_grade_students(grade)]) for grade in
+                            grades]
         self.graph.load_graph(points_per_grade)
 
     def update_text(self):
-        grade_9 = len(student_manager.get_grade_students(9))
-        grade_10 = len(student_manager.get_grade_students(10))
-        grade_11 = len(student_manager.get_grade_students(11))
-        grade_12 = len(student_manager.get_grade_students(12))
-
-        sport_events = len(event_manager.get_sport_events())
-        non_sport_events = len(event_manager.get_non_sport_events())
+        unsorted_events = [event for event in event_manager.events]
+        events = sorted(unsorted_events, key=lambda e: len(e.attendees), reverse=True)
+        number_of_events = len(event_manager.events)
+        if number_of_events > 3:
+            most_popular_events = events[:3]
+        else:
+            most_popular_events = events[:number_of_events]
+        popular_events_str = ''.join([f'{event.name}:   {len(event.attendees)}  attendees\n'
+                                      for event in most_popular_events])
+        self.popular_frame.popular_events.configure(text=popular_events_str, justify=tk.LEFT)
 
         total_points = sum(student.points for student in student_manager.students)
-
-        self.number_frame.students_number.configure(text=
-                    f'''9th Grade: {grade_9}\n10th Grade: {grade_10}\n11th Grade: {grade_11}\n12th Grade: {grade_12}''')
-        self.number_frame.events_number.configure(text=
-                                                f'Sport Events: {sport_events}\nNon-Sport Events: {non_sport_events}\n')
         self.points_frame.points_number.configure(text=f'{total_points}')
 
     def update(self):
@@ -56,8 +55,8 @@ class HomeFrame(ct.CTkFrame):
         label.grid(row=0, column=0, sticky='NEWS', padx=10, pady=20, columnspan=2)
         self.graph = Graph(self, width=400)
         self.graph.grid(row=1, column=0, sticky='NEWS', padx=10, pady=20, rowspan=2)
-        self.number_frame = NumberFrame(self)
-        self.number_frame.grid(row=1, column=1, sticky='NEWS', padx=10, pady=20)
+        self.popular_frame = PopularFrame(self)
+        self.popular_frame.grid(row=1, column=1, sticky='NEWS', padx=10, pady=20)
 
         self.points_frame = PointsFrame(self)
         self.points_frame.grid(row=2, column=1, sticky='NEWS', padx=10, pady=20)
@@ -80,7 +79,7 @@ class Graph(ct.CTkFrame):
 
         self.plot_canvas = FigureCanvasTkAgg(fig, master=self)
         self.plot_canvas.draw()
-        self.plot_canvas.get_tk_widget().grid(row=0, column=0, padx=10, pady=10)
+        self.plot_canvas.get_tk_widget().grid(row=0, column=0, padx=10, pady=10, sticky='NEWS')
 
     def load_graph(self, y):
         self.y = y
@@ -89,20 +88,13 @@ class Graph(ct.CTkFrame):
         self.plot_canvas.draw()
 
 
-class NumberFrame(ct.CTkFrame):
+class PopularFrame(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        student_label = ct.CTkLabel(self, text='\tNumber of Students:\t ', font=('arial', 20, 'bold', 'italic'))
-        student_label.grid(row=0, column=0, sticky='NEWS', padx=5, pady=10)
-        self.students_number = ct.CTkLabel(self, text='9th Grade:\n10th Grade:\n11th Grade:\n12th Grade:',
-                                           font=('arial', 15, 'bold'), anchor='w')
-        self.students_number.grid(row=1, column=0, sticky='NEWS', padx=5, pady=0)
-
-        event_label = ct.CTkLabel(self, text='Number of Events:\t ', font=('arial', 20, 'bold', 'italic'))
-        event_label.grid(row=2, column=0, sticky='NEWS', padx=5, pady=10)
-        self.events_number = ct.CTkLabel(self, text='Sport Events:\nNon-Sport Events:\n',
-                                         font=('arial', 15, 'bold'), anchor='w')
-        self.events_number.grid(row=3, column=0, sticky='NEWS', padx=5, pady=0)
+        popular_label = ct.CTkLabel(self, text=' Most popular Events: ', font=('arial', 40, 'bold', 'italic'))
+        popular_label.grid(row=0, column=0, sticky='NEWS', padx=5, pady=10)
+        self.popular_events = ct.CTkLabel(self, text='', font=('arial', 20, 'bold'), anchor='n')
+        self.popular_events.grid(row=1, column=0, sticky='NEWS', padx=5, pady=0)
 
 
 class PointsFrame(ct.CTkFrame):
