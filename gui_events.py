@@ -4,6 +4,7 @@ import customtkinter as ct
 from func_utils import *
 from Events import event_manager
 from student import student_manager
+import re
 
 
 # Using EventController in order to separate logic from the view. Easier to scale up and debug this way. Later on,
@@ -110,11 +111,17 @@ class EventController:
     def add_student_view(self, event=None):
         typed = self.event_tabs.view_tab.student_select.var.get()
         selected_item = self.events_table.tree.focus()
+        # Checks if typed is empty
         if typed:
-            if typed.isdigit() and len(typed) == 8:
-                student_id = self.event_tabs.view_tab.student_select.var.get()
+            # This uses a regular expression to get the ID part of the string. If there is no 8 digit student ID in the string, id = None.
+            id = re.search(r"5801\d{4}", self.event_tabs.view_tab.student_select.var.get())
+            # Checks if typed is not None
+            if id:
+                # If id is an 8 digit number starting with 5801, then use id.group() for data validation
+                student_id = id.group()
             else:
-                student_id = self.event_tabs.view_tab.student_select.var.get().split()[2]
+                # If id is None, then use typed for data validation
+                student_id = typed
             event = self.model.get_event(selected_item)
             validation = self.validate_view_tab_add(int(student_id))
 
@@ -260,6 +267,7 @@ class EventController:
 
         self.event_tabs.view_tab.student_add.configure(command=self.add_student_view)
         self.event_tabs.view_tab.delete_student.configure(command=self.delete_student_view)
+        self.event_tabs.view_tab.student_select.bind('<Return>', self.add_student_view)
 
         values = [f'{s.first_name} {s.last_name}, {s.student_id}' for s in self.student_model.students]
         self.event_tabs.view_tab.student_select.configure(values=values)
