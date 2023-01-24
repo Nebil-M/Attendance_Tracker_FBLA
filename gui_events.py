@@ -89,7 +89,7 @@ class EventController:
         selected_item = self.events_table.tree.focus()
         view_tab = self.event_tabs.view_tab
         event = self.model.get_event(selected_item)
-        if event:
+        if event and selected_item not in ('0', '1'):
             attendee_names = [f'{attendee.first_name} {attendee.last_name}, {attendee.student_id}'
                               for attendee in event.attendees]
             view_tab.event_name.var.set(event.name)
@@ -99,6 +99,13 @@ class EventController:
             view_tab.description.configure(state="disabled")
 
             view_tab.student_list.var.set(attendee_names)
+        elif selected_item in ('0', '1'):
+            view_tab.event_name.var.set('Event Name')
+            view_tab.description.configure(state="normal")
+            view_tab.description.delete("0.0", 'end')
+            view_tab.description.insert('end', 'Description of the event')
+            view_tab.description.configure(state="disabled")
+            view_tab.student_list.var.set([])
 
     def add_student_view(self, event=None):
         typed = self.event_tabs.view_tab.student_select.var.get()
@@ -145,6 +152,8 @@ class EventController:
         if delete:
             if not self.events_table.tree.selection() or not selected_item:
                 errors.append('\tNo Event is selected')
+        elif selected_item in ('0', '1'):
+            errors.append("\tFolder can't be edited")
         else:
             errors.append(self.model.validate_id(data_entries[0], event))
             errors.append(self.model.validate_event_name(data_entries[1]))
@@ -158,8 +167,10 @@ class EventController:
         errors = []
         selected_item = self.events_table.tree.focus()
         event = self.model.get_event(selected_item)
-        if not selected_item:
+        if not selected_item :
             errors.append('\tNo Event is selected.')
+        elif selected_item in ('0', '1'):
+            errors.append('\tSelected Item is a folder not an event.')
         elif student_id in [s.student_id for s in event.attendees]:
             errors.append('\tStudent already attended event.')
         # Checks whether the student ID exists in the database
@@ -176,6 +187,8 @@ class EventController:
             errors.append('\tNo Event is selected.')
         elif not idexes:
             errors.append('\tNo Student is selected.')
+        elif selected_item in ('0', '1'):
+            errors.append('\tSelected Item is a folder not an event.')
 
         return errors if errors else True
 

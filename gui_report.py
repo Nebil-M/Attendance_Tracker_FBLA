@@ -29,7 +29,8 @@ class ReportController:
         dialog_name = ct.CTkInputDialog(text="Name of Prize: ", title="Add a prize")
         name = dialog_name.get_input()
         if name:
-            while not name.isalpha():
+            prize_names = [prize.name for prize in prize_manager.prizes]
+            while not name.isalpha() or name in prize_names:
                 dialog_name = ct.CTkInputDialog(text="The Name may only include letters and spaces.\n\nName of Prize: ",
                                                 title="Add a prize", entry_border_color='red')
                 name = dialog_name.get_input()
@@ -70,6 +71,8 @@ class ReportController:
             valid_name = name.replace('$', '')
             if not valid_name.replace(' ', '').isalnum():
                 errors.append('\tThe name may only include letters spaces and numbers.')
+            elif valid_name in [p.name for p in prize_manager.prizes if p.name != prize.name]:
+                errors.append('\tPrize already exists.')
             else:
                 prize.name = name
             if not points.isdigit():
