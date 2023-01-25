@@ -23,6 +23,7 @@ class ReportController:
         self.update_table()
         self.update_display()
         self.bindings()
+        self.check_arrow_colors()
 
     # Prize mechanics
     def add_prize(self):
@@ -84,7 +85,6 @@ class ReportController:
         else:
             self.show_error(['\tNo Prize is selected.'])
 
-
     def fill_edit_field(self):
         prize_name = self.table.tree.focus()
         prize = prize_manager.get_prize(prize_name)
@@ -99,10 +99,29 @@ class ReportController:
         report_manager.prev()
         self.update_display()
 
+        self.check_arrow_colors()
+
     def left_arrow(self):
         report_manager.next()
         self.update_display()
+        self.check_arrow_colors()
 
+    def check_arrow_colors(self):
+        # Checks if this is the first report. If it is, make left arrow gray.
+        if len(report_manager.reports) - report_manager.idx == 1 or len(report_manager.reports) == 0:
+            self.view.report_toggle.left_toggle.configure(fg_color='gray', hover_color='#595959')
+        # Else, make it blue (default)
+        else:
+            self.view.report_toggle.left_toggle.configure(fg_color='#1f538d', hover_color='#14375e')
+
+        # Checks if this is the last report. If it is, make the right arrow gray.
+        if len(report_manager.reports) - report_manager.idx == len(report_manager.reports):
+            self.view.report_toggle.right_toggle.configure(fg_color='gray', hover_color='#595959')
+        # Else, make it blue (default)
+        else:
+            self.view.report_toggle.right_toggle.configure(fg_color='#1f538d', hover_color='#14375e')
+
+    # Creates a report
     def end_quarter(self):
         dialog = ct.CTkInputDialog(text="Name of report: ", title="New report")
         quarter_name = dialog.get_input()
@@ -110,6 +129,7 @@ class ReportController:
             report_manager.create_report(quarter_name)
             report_manager.idx = 0
             self.update_display()
+            self.check_arrow_colors()
 
             # clear Points
             for student in student_manager.students:
@@ -118,7 +138,6 @@ class ReportController:
             # archives events
             for event in event_manager.events:
                 event.is_archived = True
-
 
     def delete_report(self):
         current_report = report_manager.current()
@@ -129,17 +148,18 @@ class ReportController:
                 report_manager.reports.remove(current_report)
                 report_manager.prev()
                 self.update_display()
+                self.check_arrow_colors()
 
     # Update Events
     def update_table(self):
         self.table.tree.delete(*self.table.tree.get_children())
         self.table.load(prize_manager.prizes)
 
-        # Saves data
-        student_manager.save_data()
-        event_manager.save_data()
-        report_manager.save_data()
-        prize_manager.save_data()
+        # Saves data into pickle file
+        # student_manager.save_data()
+        # event_manager.save_data()
+        # report_manager.save_data()
+        # prize_manager.save_data()
 
     def update_display(self):
         # points per student
@@ -207,11 +227,11 @@ class ReportController:
             self.student_list.eleventh_grade.var.set([])
             self.student_list.twelfth_grade.var.set([])
 
-        # Saves data
-        student_manager.save_data()
-        event_manager.save_data()
-        report_manager.save_data()
-        prize_manager.save_data()
+        # Saves data into pickle file
+        # student_manager.save_data()
+        # event_manager.save_data()
+        # report_manager.save_data()
+        # prize_manager.save_data()
 
     # all bindings and commands
     def bindings(self):

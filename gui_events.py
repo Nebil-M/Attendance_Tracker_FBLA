@@ -162,9 +162,9 @@ class EventController:
         elif selected_item in ('0', '1'):
             errors.append("\tFolder can't be edited")
         else:
-            errors.append(self.model.validate_id(data_entries[0], event))
             errors.append(self.model.validate_event_name(data_entries[1]))
             errors.append(self.model.validate_date(data_entries[2]))
+            errors.append(self.model.validate_id(data_entries[0], event))
             errors.append(self.model.validate_nature(data_entries[3]))
 
         errors = [error for error in errors if not isinstance(error, bool)]
@@ -215,8 +215,8 @@ class EventController:
         self.events_table.load_events(self.model.events)
 
         # Saves data pickle file
-        self.student_model.save_data()
-        self.model.save_data()
+        # self.student_model.save_data()
+        # self.model.save_data()
 
     def update_view_tab(self):
         if self.model.events:
@@ -253,8 +253,8 @@ class EventController:
                 view_tab.student_list.var.set(attendee_names)
 
         # Saves data pickle file
-        self.student_model.save_data()
-        self.model.save_data()
+        # self.student_model.save_data()
+        # self.model.save_data()
 
     # All bindings and command configs to widgets are done here
     def widget_bindings(self):
@@ -262,8 +262,19 @@ class EventController:
         self.events_table.tree.bind('<ButtonRelease-1>', self.view_select)
         self.event_tabs.add_tab.add.configure(command=self.add_event)
 
+        self.event_tabs.add_tab.name.bind('<Return>', self.add_event)
+        self.event_tabs.add_tab.date.bind('<Return>', self.add_event)
+        self.event_tabs.add_tab.id.bind('<Return>', self.add_event)
+        self.event_tabs.add_tab.nature.bind('<Return>', self.add_event)
+        self.event_tabs.add_tab.description.bind('<Control-Return>', self.add_event)
+
         self.event_tabs.edit_tab.delete.configure(command=self.delete_event)
         self.event_tabs.edit_tab.edit_button.configure(command=self.edit_event)
+        self.event_tabs.edit_tab.name.bind('<Return>', self.edit_event)
+        self.event_tabs.edit_tab.date.bind('<Return>', self.edit_event)
+        self.event_tabs.edit_tab.id.bind('<Return>', self.edit_event)
+        self.event_tabs.edit_tab.nature.bind('<Return>', self.edit_event)
+        self.event_tabs.edit_tab.description.bind('<Control-Return>', self.edit_event)
 
         self.event_tabs.view_tab.student_add.configure(command=self.add_student_view)
         self.event_tabs.view_tab.delete_student.configure(command=self.delete_student_view)
