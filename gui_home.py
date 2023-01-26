@@ -29,7 +29,7 @@ class HomeController:
         self.graph.load_graph(points_per_grade)
 
     def update_text(self):
-        unsorted_events = [event for event in event_manager.events]
+        unsorted_events = [event for event in event_manager.events if not event.is_archived]
         events = sorted(unsorted_events, key=lambda e: len(e.attendees), reverse=True)
         number_of_events = len(event_manager.events)
         if number_of_events > 3:
@@ -91,7 +91,7 @@ class Graph(ct.CTkFrame):
 class PopularFrame(ct.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        popular_label = ct.CTkLabel(self, text=' Most popular Events: ', font=('arial', 40, 'bold', 'italic'))
+        popular_label = ct.CTkLabel(self, text=' Most popular Current Events: ', font=('arial', 35, 'bold', 'italic'))
         popular_label.grid(row=0, column=0, sticky='NEWS', padx=5, pady=10)
         self.popular_events = ct.CTkLabel(self, text='', font=('arial', 20, 'bold'), anchor='n')
         self.popular_events.grid(row=1, column=0, sticky='NEWS', padx=5, pady=0)

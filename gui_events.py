@@ -79,7 +79,7 @@ class EventController:
         edit_tab = self.event_tabs.edit_tab
         event = self.model.get_event(selected_item)
         # check if the edit_tab is at the top of display stack by checking if it is placed last:
-        if edit_tab == self.event_tabs.winfo_children()[-1]:
+        if edit_tab == self.event_tabs.winfo_children()[-1] and selected_item not in ('0', '1'):
             edit_tab.id.var.set(event.event_id)
             edit_tab.name.var.set(event.name)
             edit_tab.date.var.set(event.date)
@@ -217,8 +217,8 @@ class EventController:
         self.events_table.load_events(self.model.events)
 
         # Saves data pickle file
-        # self.student_model.save_data()
-        # self.model.save_data()
+        self.student_model.save_data()
+        self.model.save_data()
 
     def update_view_tab(self):
 
@@ -256,8 +256,8 @@ class EventController:
                 view_tab.student_list.var.set(attendee_names)
 
         # Saves data pickle file
-        # self.student_model.save_data()
-        # self.model.save_data()
+        self.student_model.save_data()
+        self.model.save_data()
 
     # the names of attendees were different in student list. attendees need to be updated each time to reflect changes.
     def update_attendees(self):
