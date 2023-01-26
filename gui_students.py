@@ -38,8 +38,8 @@ class StudentController:
 
             # Saves the student into the pkl file
             # commented out for testing
-            student_manager.save_data()
-            event_manager.save_data()
+            #student_manager.save_data()
+            #event_manager.save_data()
 
             # Updates the treeview with the new data
             self.update_students_table()
@@ -73,8 +73,8 @@ class StudentController:
 
             # Saves the student into the pkl file
             # commented out for testing
-            student_manager.save_data()
-            event_manager.save_data()
+            #student_manager.save_data()
+            #event_manager.save_data()
 
             # Updates the treeview with the new data
             self.update_students_table()
@@ -106,8 +106,8 @@ class StudentController:
 
                 # Saves the data into the pkl file
                 # commented out for testing
-                student_manager.save_data()
-                event_manager.save_data()
+                #student_manager.save_data()
+                #event_manager.save_data()
                 # Updates the treeview with the new data
                 self.update_students_table()
                 # Cleans out the entries once the data is updated

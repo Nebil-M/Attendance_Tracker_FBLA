@@ -13,19 +13,19 @@ class Event:
 
         self.is_archived = False
 
-    # Using weakreferences to store attendees so that they are deleted when they are deleted from studentmanager list
-    # one can call the weakrefernce to access the object by adding a () at the end of the weakreference
     def add_attendee(self, attendee):
-        existing_student_ids = [student.student_id for student in self.attendees]
-        if attendee.student_id not in existing_student_ids:
-            self.attendees.append(attendee)
-            attendee.add_points(1)
+        if not self.is_archived:
+            existing_student_ids = [student.student_id for student in self.attendees]
+            if attendee.student_id not in existing_student_ids:
+                self.attendees.append(attendee)
+                attendee.add_points(1)
 
     def delete_attendee(self, remove_attendee):
-        for attendee in self.attendees:
-            if attendee.student_id == remove_attendee.student_id:
-                self.attendees.remove(attendee)
-        remove_attendee.points -= 1 if remove_attendee.points > 0 else 0
+        if not self.is_archived:
+            for attendee in self.attendees:
+                if attendee.student_id == remove_attendee.student_id:
+                    self.attendees.remove(attendee)
+            remove_attendee.points -= 1 if remove_attendee.points > 0 else 0
 
     def __str__(self):
         return self.name

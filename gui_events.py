@@ -25,6 +25,7 @@ class EventController:
         # Functions run Initially
         self.update_events_table()
         self.widget_bindings()
+        self.update_attendees()
 
     # adds to model, deletes and repopulates items in view using update_events_table
     def add_event(self, event=None):
@@ -209,6 +210,7 @@ class EventController:
     # updates the treeview each time it is called. Call it anytime the model is changed.
     # It deletes all items from treeview and repopulates them
     def update_events_table(self):
+
         tree = self.events_table.tree
         tree.delete(*tree.get_children())
 
@@ -219,6 +221,7 @@ class EventController:
         # self.model.save_data()
 
     def update_view_tab(self):
+
         if self.model.events:
             # delete any non existing students from any attendee lists
             real_ids = [student.student_id for student in self.student_model.students]
@@ -255,6 +258,12 @@ class EventController:
         # Saves data pickle file
         # self.student_model.save_data()
         # self.model.save_data()
+
+    # the names of attendees were different in student list. attendees need to be updated each time to reflect changes.
+    def update_attendees(self):
+        for event in self.model.events:
+            attendee_ids = [attendee.student_id for attendee in event.attendees]
+            event.attendees = list(map(lambda id: self.student_model.get_student(id), attendee_ids))
 
     # All bindings and command configs to widgets are done here
     def widget_bindings(self):
