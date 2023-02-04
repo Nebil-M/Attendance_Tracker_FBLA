@@ -256,7 +256,7 @@ class ReportController:
         error_string = ''
         for error in errors:
             error_string += '\n' + error
-        tk.messagebox.showerror("Error", "The following data entry errors occurred:" + error_string)
+        tk.messagebox.showerror("Data Validation", "The following data entry mistakes occurred:" + error_string)
 
 
 class ReportFrame(ct.CTkFrame):

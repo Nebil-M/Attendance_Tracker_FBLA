@@ -204,7 +204,7 @@ class EventController:
         error_string = ''
         for error in validation:
             error_string += '\n' + error
-        tk.messagebox.showerror("Error", "The following data entry errors occurred:" + error_string)
+        tk.messagebox.showerror("Data Validation", "The following data entry mistakes occurred:" + error_string)
 
     # Updates and bindings
     # updates the treeview each time it is called. Call it anytime the model is changed.
