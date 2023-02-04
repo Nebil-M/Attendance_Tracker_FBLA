@@ -482,12 +482,12 @@ class WinnersDisplay(ct.CTkFrame):
 
         ct.CTkLabel(self, text='Overall winner', font=('arial', font)).grid(row=0, column=0, sticky=sticky, padx=pad_x,
                                                                             pady=pad_y)
-        self.top_winner = ct.CTkTextbox(self, font=('Consolas', 12), state="disabled", height=height)
+        self.top_winner = ct.CTkTextbox(self, font=('Consolas', 12), state="disabled", height=height, cursor='', wrap='word')
         self.top_winner.grid(row=1, column=0, sticky='NEWS', padx=10, pady=10)
 
         ct.CTkLabel(self, text='Random winners', font=('arial', font)).grid(row=0, column=1, sticky=sticky, padx=pad_x,
                                                                             pady=pad_y)
-        self.random_winners = ct.CTkTextbox(self, font=('Consolas', 12), state="disabled", height=height)
+        self.random_winners = ct.CTkTextbox(self, font=('Consolas', 12), state="disabled", height=height, cursor='', wrap='word')
         self.random_winners.grid(row=1, column=1, sticky='NEWS', padx=10, pady=10)
 
 

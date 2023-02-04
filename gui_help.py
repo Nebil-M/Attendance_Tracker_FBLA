@@ -12,7 +12,7 @@ class HelpMenu(ct.CTkFrame):
 
         # Initializes textbox
         self.textbox = tk.Text(self, font=('Arial', 20), foreground="#d6d6d6", background="#333333", border=0,
-                               wrap='word')
+                               wrap='word', cursor='')
 
         # Collapse button
         self.collapse_button = ct.CTkButton(self.textbox, text='Collapse all', command=self.collapse_all)

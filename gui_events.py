@@ -496,7 +496,7 @@ class AddTab(ct.CTkFrame):
         ct.CTkLabel(self, text='Nature', font=('arial', font), anchor='sw').grid(
             row=2, column=1, sticky='NEWS', padx=10, pady=2)
         self.nature = ct.CTkEntry(self, placeholder_text='Nature', font=('arial', font))
-        self.description = ct.CTkTextbox(self, height=100, font=('arial', font))
+        self.description = ct.CTkTextbox(self, height=100, font=('arial', font), wrap='word')
         self.add = ct.CTkButton(self, text="Add Event", font=('arial', font + 5))
 
         # add_default text for description box
@@ -553,7 +553,7 @@ class EditTab(ct.CTkFrame):
         ct.CTkLabel(self, text='Nature', font=('arial', font), anchor='sw').grid(
             row=2, column=1, sticky='NEWS', padx=10, pady=2)
         self.nature = ct.CTkEntry(self, placeholder_text='Nature', font=('arial', font))
-        self.description = ct.CTkTextbox(self, height=100, font=('arial', font))
+        self.description = ct.CTkTextbox(self, height=100, font=('arial', font), wrap='word')
         self.edit_button = ct.CTkButton(self, text="Edit Event", font=('arial', font + 5), anchor='center')
         self.delete = ct.CTkButton(self, text="Delete Event", font=('arial', font + 5), fg_color='#b30000',
                                    hover_color='#750000')
@@ -614,7 +614,7 @@ class ViewTab(ct.CTkFrame):
         self.delete_student = ct.CTkButton(self.student_tools, text='Remove Student', font=('arial', 20),
                                            anchor='center', fg_color='#b30000', hover_color='#750000')
 
-        self.description = ct.CTkTextbox(self, height=200, font=('arial', 20))
+        self.description = ct.CTkTextbox(self, height=200, font=('arial', 20), cursor='', wrap='word')
         # add_default text for description box
         self.description.insert('0.0', 'Description of the event')
 
