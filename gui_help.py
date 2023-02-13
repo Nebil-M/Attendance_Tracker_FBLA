@@ -69,7 +69,7 @@ class HelpMenu(ct.CTkFrame):
         # Don't edit these or the text formatting will be messed up.
         question1_heading = " Q1: How do I add new students to the database?"
         question1_answer = """
-    1.  Go to the Students page by clicking on Students on the navigation menu on the left side of the screen. 
+    1.  Go to the Students page by clicking on Students on the navigation menu on the top of the screen. 
     2.  Make sure to navigate to the Add Students tab by clicking on the Add button located in the top right corner. It should say “Add a new student:” on your screen. 
     3.  You can enter the student’s information in the corresponding text fields and drop down menus on the right. Filling out all fields is required. 
           -  The Student ID (required) may be any 8 digit number that starts with 5801 and is not already assigned to an existing student. 
@@ -84,7 +84,7 @@ class HelpMenu(ct.CTkFrame):
         question2_answer = """
     Note: To give students points, please see Q7: How do I mark that students have attended an event?/How do I add or remove a student’s points?
 
-    1.  Go to the Students page by clicking on Students on the navigation menu on the left side of the screen. 
+    1.  Go to the Students page by clicking on Students on the navigation menu on the top of the screen. 
     2.  Make sure to navigate to the Edit Students tab by clicking on the Edit button located in the top right corner. It should say “Edit student details:” on your screen. 
     3.  In the list of students, double click the student whose information you would like to edit. The The text fields and drop down menus on the right should now be automatically filled with that student’s information. 
     4.  Edit the student’s information by changing the appropriate fields. 
@@ -97,7 +97,7 @@ class HelpMenu(ct.CTkFrame):
 """
         question3_heading = " Q3: How do I remove a student from the database?"
         question3_answer = """
-    1.  Go to the Students page by clicking on Students on the navigation menu on the left side of the screen. 
+    1.  Go to the Students page by clicking on Students on the navigation menu on the top of the screen.
     2.  Make sure to navigate to the Edit Students tab by clicking on the Edit button located in the top right corner. It should say “Edit student details:” on your screen. 
     3.  In the list of students, double click the student you wish to remove. On the right, it should say the student’s full name after “Student selected:”.
     4.  Click the red Delete button. 
@@ -105,7 +105,7 @@ class HelpMenu(ct.CTkFrame):
 """
         question4_heading = " Q4: How do I add new events to the database?"
         question4_answer = """
-    1.  Go to the Events page by clicking on Events on the navigation menu on the left side of the screen. 
+    1.  Go to the Events page by clicking on Events on the navigation menu on the top of the screen. 
     2.  Make sure to navigate to the Add Events tab by clicking on the Add tab button located in the top right. 
     3.  You can enter the event’s details in the corresponding text fields.
           -  The Event Name (required) should be at least one letter long and may only contain letters and spaces. 
@@ -117,7 +117,7 @@ class HelpMenu(ct.CTkFrame):
 """
         question5_heading = " Q5: How do I edit an existing event’s information?"
         question5_answer = """
-    1.  Go to the Events page by clicking on Events on the navigation menu on the left side of the screen. 
+    1.  Go to the Events page by clicking on Events on the navigation menu on the top of the screen.
     2.  Make sure to navigate to the Edit Events tab by clicking on the Edit tab button located in the top right. 
     3.  In the list of events, double click the event whose information you would like to edit. The The text fields on the right should now be automatically filled with the event’s information. 
     4.  Edit the event’s information by changing the appropriate fields. 
@@ -130,7 +130,7 @@ class HelpMenu(ct.CTkFrame):
 """
         question6_heading = " Q6: How do I remove an event from the database?"
         question6_answer = """
-    1.  Go to the Events page by clicking on Events on the navigation menu on the left side of the screen. 
+    1.  Go to the Events page by clicking on Events on the navigation menu on the top of the screen.
     2.  Make sure to navigate to the Add Events tab by clicking on the Add tab button located in the top right. 
     3.  In the list of events, click on the event you would like to remove. 
     4.  Click the Delete Event button. 
@@ -148,7 +148,7 @@ class HelpMenu(ct.CTkFrame):
 """
         question8_heading = " Q8: How do I remove an attendee from an event?/How do I change a student’s points?"
         question8_answer = """
-    1.  Go to the Events page by clicking on Events on the navigation menu on the top of the screen. 
+    1.  Go to the Events page by clicking on Events on the navigation menu on the top of the screen.
     2.  Make sure to navigate to the Attendance tab by clicking on the Attendance button located in the top right. 
     3.  In the list of events, select the event that the student attended by clicking on it. The event’s name should appear on your screen. 
     4.  In the List of attendees, find and select the student who you wish you remove from the event. 
