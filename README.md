@@ -37,16 +37,15 @@ Please refer to the FAQ section below for more information.
  Q13: How do I remove existing prizes?
 
 ### Q1: How do I add new students to the database?
-
-Go to the Students page by clicking on Students on the navigation menu on the top of the screen. 
-Make sure to navigate to the Add Students tab by clicking on the Add button located in the top right corner. It should say “Add a new student:” on your screen. 
-You can enter the student’s information in the corresponding text fields and drop down menus on the right. Filling out all fields is required. 
-The Student ID (required) may be any 8 digit number that starts with 5801 and is not already assigned to an existing student. 
-The Grade Level (required) should be selected from one of the values on the drop down menu: 9, 10, 11, or 12. 
-The First name (required) should be the student’s legal first name and may only contain letters, spaces, and hyphens. 
-The Last name (required) should be the student’s legal last name and may only contain letters, spaces, and hyphens. 
-The Letter grade (required) should be the student’s current grade and selected from the drop down menu. 
-Click the Save button. If there is an issue with data entry, a popup window will appear and describe the error. If so, go back to step 3 and adjust the appropriate fields to address the issue. If the student has been successfully added, the new student should appear in the list of students on the center of the screen. 
+1.  Go to the Students page by clicking on Students on the navigation menu on the left side of the screen. 
+2.  Make sure to navigate to the Add Students tab by clicking on the Add button located in the top right corner. It should say “Add a new student:” on your screen. 
+3.  You can enter the student’s information in the corresponding text fields and drop down menus on the right. Filling out all fields is required. 
+    -  The Student ID (required) may be any 8 digit number that starts with 5801 and is not already assigned to an existing student. 
+    -  The Grade Level (required) should be selected from one of the values on the drop down menu: 9, 10, 11, or 12. 
+    -  The First name (required) should be the student’s legal first name and may only contain letters, spaces, and hyphens. 
+    -  The Last name (required) should be the student’s legal last name and may only contain letters, spaces, and hyphens. 
+    -  The Letter grade (required) should be the student’s current grade and selected from the drop down menu. 
+4.  Click the Save button. If there is an issue with data entry, a popup window will appear and describe the error. If so, go back to step 3 and adjust the appropriate fields to address the issue. If the student has been successfully added, the new student should appear in the list of students on the center of the screen.
 
 
 ### Q2: How do I edit an existing student’s information?
