@@ -1,4 +1,4 @@
-# Attendace_Tracker_FBLA
+# Attendance_Tracker_FBLA
 
 The “Attendance Tracker” is a program intended to encourage school spirit by keeping track of student attendance at school events and rewarding the most active students.
 This program was made using the python programming language. The code follows the object-oriented programming paradigm and the MVC design pattern. The GUI was created using Tkinter and CustomTkinter while the Matplotlib was used for the graph on the home screen.
