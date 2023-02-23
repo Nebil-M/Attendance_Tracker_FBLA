@@ -1,16 +1,21 @@
 # Attendance_Tracker_FBLA
-{Home screen}
+![alt text](https://github.com/Nebil-M/Attendance_Tracker_FBLA/blob/main/gui_pictures/Home.png?raw=true)
+
 The “Attendance Tracker” is a program intended to encourage school spirit by keeping track of student attendance at school events and rewarding the most active students.
 This program was made using the python programming language. The code follows the object-oriented programming paradigm and the MVC design pattern. The GUI was created using Tkinter and CustomTkinter while Matplotlib was used for the graph on the home screen.
 
-{Student Tab}
+![alt text](https://github.com/Nebil-M/Attendance_Tracker_FBLA/blob/main/gui_pictures/Student.png?raw=true)
+
 The intended user of this program is a teacher or other school staff member. The user can add new students and events into the system as needed. To add a student, the user must enter the student’s ID, grade level, first name, last name, and letter grade. 
 
-{Event Tab}
+![alt text](https://github.com/Nebil-M/Attendance_Tracker_FBLA/blob/main/gui_pictures/Event.png?raw=true)
+
 To create an event, the user must provide the event’s name, date, ID, nature, and description. Each of these students and events can be edited and deleted as necessary.
 
+![alt text](https://github.com/Nebil-M/Attendance_Tracker_FBLA/blob/main/gui_pictures/Report.png?raw=true)
+
 To create a report, the user can click on the "Click to end the Quarter" button. A report which shows the winners and a breakdown of points per grade level will be automatically generated and displayed. The user can customize the prizes on the right and can choose any name for the quarter. The user can browse through the all reports that were created using the arrow buttons. 
-{Report Tab}
+
 
 
 # Documentation
